@@ -182,41 +182,7 @@
         const audio = document.getElementById("myAudio");
         const image = document.getElementById("myImage");
         const modal = document.querySelector('.modal-overlay');
-        const channelsGrid = document.querySelector('.channels-grid');
-        
-        const channels = [
-            'https://t.me/m5stick_loni2',
-            'https://t.me/+QFjtYcgb7J9jYTJi'
-        ];
-        
 
-        function createChannelButtons() {
-            channelsGrid.innerHTML = channels.map(channel => {
-                let channelName = channel.replace('https://t.me/', '');
-                if (channelName === "+QFjtYcgb7J9jYTJi"){
-                channelName = "Палка 2.0";
-                }
-                return `
-                    <a href="${channel}" class="channel-button" target="_blank">
-                        <svg viewBox="0 0 24 24" width="20" height="20">
-                            <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.11.02-1.93 1.23-5.46 3.62-.51.35-.98.52-1.4.51-.46-.01-1.35-.26-2.01-.48-.81-.27-1.46-.42-1.4-.88.03-.25.38-.51 1.07-.78 4.2-1.82 7-3.03 8.4-3.61 4-.17 4.83 1.16 4.88 1.15z"/>
-                        </svg>
-                        ${channelName}
-                    </a>
-                `;
-            }).join('');
-        }
-
-        
-        createChannelButtons();
-        image.addEventListener("click", function() {
-            audio.play();
-        });
-
-        document.getElementById('showChannels').addEventListener('click', function(e) {
-            e.preventDefault();
-            modal.style.display = 'block';
-        });
 
         modal.addEventListener('click', function(e) {
             if (e.target === modal) {
