@@ -186,6 +186,25 @@
       animation: fadeIn 0.4s ease;
     }
 
+    .auto-next-timer {
+      height: 4px;
+      background: #e9ecef;
+      border-radius: 2px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .auto-next-progress {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    body.dark .auto-next-timer {
+      background: #444;
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -208,9 +227,8 @@
       <div class="progress" id="progress"></div>
       <h2 id="question-text"></h2>
       <div class="options" id="options"></div>
-      <div style="margin-top:14px;">
-        <button id="next-btn" class="ghost" disabled>Далее</button>
-        <button id="quit-btn" class="ghost">Выход</button>
+      <div class="auto-next-timer">
+        <div class="auto-next-progress" id="auto-next-progress"></div>
       </div>
     </div>
 
@@ -219,7 +237,7 @@
       <p class="score-big" id="final-score">0 / 100</p>
       <p class="time-info" id="time-result">Время: 0 сек</p>
       <p id="result-text"></p>
-      <button id="save-btn">Сохранить результат</button>
+      <p id="saving-text" style="font-style: italic; opacity: 0.7;"></p>
       <button id="play-again" class="ghost">Играть снова</button>
       <button id="view-leaders-2" class="ghost">Лидеры</button>
     </div>
@@ -246,14 +264,10 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // ⚠️ ВАЖНО: ЗАМЕНИТЕ ЭТИ ДАННЫЕ НА СВОИ ИЗ SUPABASE ⚠️
-    // 1. Зайдите в проект Supabase
-    // 2. Нажмите Settings → API 
-    // 3. Скопируйте Project URL и anon public key
-    const SUPABASE_URL = 'https://xlrmxinwpwjjurltvoms.supabase.co'; // ЗАМЕНИТЕ НА ВАШ URL
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhscm14aW53cHdqanVybHR2b21zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3ODY3NjYsImV4cCI6MjA3ODM2Mjc2Nn0.1dUPUXBfmN3cMTkAQVHWgXdhU74hJ6U96v1M_OSoZyI'; // ЗАМЕНИТЕ НА ВАШ КЛЮЧ
+    // Данные вашего Supabase проекта
+    const SUPABASE_URL = 'https://xlrmxinwpwjjurltvoms.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhscm14aW53cHdqanVybHR2b21zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3ODY3NjYsImV4cCI6MjA3ODM2Mjc2Nn0.1dUPUXBfmN3cMTkAQVHWgXdhU74hJ6U96v1M_OSoZyI';
     
-    // Инициализация Supabase
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const QUESTIONS = [
@@ -270,8 +284,10 @@
     ];
 
     const POINTS = 10;
+    const AUTO_NEXT_DELAY = 1500; // 1.5 секунды до автоматического перехода
     let current = 0, score = 0, player = "";
     let startTime = 0, endTime = 0;
+    let autoNextTimer = null;
 
     const start = document.getElementById("start-screen");
     const quiz = document.getElementById("quiz-screen");
@@ -282,6 +298,7 @@
     const opts = document.getElementById("options");
     const prog = document.getElementById("progress");
     const leadersBody = document.getElementById("leaders-body");
+    const autoNextProgress = document.getElementById("auto-next-progress");
 
     function show(el){ el.classList.remove("hidden"); }
     function hide(el){ el.classList.add("hidden"); }
@@ -305,38 +322,67 @@
       q.options.forEach((o,i)=>{
         const d = document.createElement("div");
         d.className="option"; d.textContent=o;
-        d.onclick=()=>select(i,d);
+        d.onclick=()=>selectAnswer(i,d);
         opts.appendChild(d);
       });
-      document.getElementById("next-btn").disabled = true;
+      
+      // Сбрасываем таймер автоматического перехода
+      autoNextProgress.style.width = '0%';
+      if (autoNextTimer) {
+        clearInterval(autoNextTimer);
+        autoNextTimer = null;
+      }
     }
 
-    let answered=false;
-    function select(i,d){
-      if(answered) return;
-      answered=true;
+    function selectAnswer(selectedIndex, selectedElement){
+      if (autoNextTimer) return; // Если уже выбран ответ, игнорируем
+
       const q = QUESTIONS[current];
-      opts.childNodes.forEach((ch,idx)=>{
-        if(idx===q.answer) ch.classList.add("correct");
-        if(idx===i && i!==q.answer) ch.classList.add("wrong");
+      
+      // Подсветка правильных/неправильных ответов
+      opts.childNodes.forEach((optionEl, index) => {
+        if (index === q.answer) {
+          optionEl.classList.add("correct");
+        } else if (index === selectedIndex && selectedIndex !== q.answer) {
+          optionEl.classList.add("wrong");
+        }
       });
-      if(i===q.answer) score+=POINTS;
-      document.getElementById("next-btn").disabled=false;
+
+      // Начисление очков
+      if (selectedIndex === q.answer) {
+        score += POINTS;
+      }
+
+      // Запускаем таймер автоматического перехода
+      startAutoNextTimer();
     }
 
-    document.getElementById("next-btn").onclick=()=>{
-      answered=false;
-      if(current<QUESTIONS.length-1){ 
+    function startAutoNextTimer() {
+      let progress = 0;
+      const interval = 30; // обновление каждые 30ms
+      const steps = AUTO_NEXT_DELAY / interval;
+      
+      autoNextTimer = setInterval(() => {
+        progress += 100 / steps;
+        autoNextProgress.style.width = progress + '%';
+        
+        if (progress >= 100) {
+          clearInterval(autoNextTimer);
+          nextQuestion();
+        }
+      }, interval);
+    }
+
+    function nextQuestion(){
+      if(current < QUESTIONS.length - 1){ 
         current++; 
         renderQ(); 
       } else {
-        finish();
+        finishQuiz();
       }
-    };
+    }
 
-    document.getElementById("quit-btn").onclick=()=>finish();
-
-    function finish(){
+    function finishQuiz(){
       endTime = Date.now();
       const timeSpent = Math.floor((endTime - startTime) / 1000);
       
@@ -346,12 +392,17 @@
       document.getElementById("time-result").textContent=`Время: ${timeSpent} сек`;
       
       const percent=(score/(QUESTIONS.length*POINTS))*100;
-      document.getElementById("result-text").textContent=percent>70?"Отлично!":"Можно лучше.";
+      if(percent >= 80) document.getElementById("result-text").textContent="Отлично! 🎉";
+      else if(percent >= 60) document.getElementById("result-text").textContent="Хорошо! 👍";
+      else document.getElementById("result-text").textContent="Можно лучше! 💪";
+
+      // Автоматически сохраняем результат
+      autoSaveScore(timeSpent);
     }
 
-    // Сохранение в Supabase
-    async function saveScore(){ 
-      const timeSpent = Math.floor((endTime - startTime) / 1000);
+    // Автосохранение в Supabase
+    async function autoSaveScore(timeSpent){ 
+      document.getElementById("saving-text").textContent = "Сохраняем результат...";
       
       try {
         const { data, error } = await supabase
@@ -367,11 +418,10 @@
           ]);
 
         if (error) throw error;
-        alert("Результат сохранен в облако!");
-        showLeaders();
+        document.getElementById("saving-text").textContent = "✅ Результат сохранен в лидерборд!";
       } catch (error) {
         console.error('Ошибка сохранения:', error);
-        alert('Ошибка сохранения. Проверьте подключение к интернету и настройки Supabase.');
+        document.getElementById("saving-text").textContent = "❌ Ошибка сохранения";
       }
     }
 
@@ -389,42 +439,46 @@
         return data || [];
       } catch (error) {
         console.error('Ошибка загрузки:', error);
-        alert('Ошибка загрузки лидерборда. Проверьте настройки Supabase.');
         return [];
       }
     }
 
-    document.getElementById("save-btn").onclick=saveScore;
-    document.getElementById("play-again").onclick=()=>{ hide(result); show(start); };
-    document.getElementById("view-leaders").onclick=showLeaders;
-    document.getElementById("view-leaders-2").onclick=showLeaders;
-    document.getElementById("back-home").onclick=()=>{ hide(leaders); show(start); };
-    document.getElementById("refresh-leaders").onclick=showLeaders;
+    document.getElementById("play-again").onclick = ()=>{ 
+      hide(result); 
+      show(start); 
+    };
+    document.getElementById("view-leaders").onclick = showLeaders;
+    document.getElementById("view-leaders-2").onclick = showLeaders;
+    document.getElementById("back-home").onclick = ()=>{ hide(leaders); show(start); };
+    document.getElementById("refresh-leaders").onclick = showLeaders;
 
     async function showLeaders(){
       hide(start); hide(result); hide(quiz); show(leaders);
-      const tbody=leaders.querySelector("tbody");
-      tbody.innerHTML="";
-      const arr=await getLeaders();
-      if(!arr.length){ tbody.innerHTML="<tr><td colspan=4>Нет данных</td></tr>"; return; }
+      const tbody = leaders.querySelector("tbody");
+      tbody.innerHTML = "";
+      const arr = await getLeaders();
+      if(!arr.length){ 
+        tbody.innerHTML = "<tr><td colspan=4>Нет данных</td></tr>"; 
+        return; 
+      }
       arr.forEach((p,i)=>{
-        const tr=document.createElement("tr");
-        tr.innerHTML=`<td>${i+1}</td><td>${p.name}</td><td>${p.score}</td><td>${p.time_seconds} сек</td>`;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${i+1}</td><td>${p.name}</td><td>${p.score}</td><td>${p.time_seconds} сек</td>`;
         tbody.appendChild(tr);
       });
     }
 
     // Theme toggle
-    const themeBtn=document.getElementById("theme-toggle");
-    const isDark=localStorage.getItem("theme")==="dark";
+    const themeBtn = document.getElementById("theme-toggle");
+    const isDark = localStorage.getItem("theme") === "dark";
     if(isDark) document.body.classList.add("dark");
-    themeBtn.textContent=isDark?"🌙":"🌞";
+    themeBtn.textContent = isDark ? "🌙" : "🌞";
 
-    themeBtn.onclick=()=>{
+    themeBtn.onclick = () => {
       document.body.classList.toggle("dark");
-      const dark=document.body.classList.contains("dark");
-      localStorage.setItem("theme", dark?"dark":"light");
-      themeBtn.textContent=dark?"🌙":"🌞";
+      const dark = document.body.classList.contains("dark");
+      localStorage.setItem("theme", dark ? "dark" : "light");
+      themeBtn.textContent = dark ? "🌙" : "🌞";
     };
   </script>
 </body>
