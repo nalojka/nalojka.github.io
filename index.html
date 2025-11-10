@@ -153,6 +153,7 @@
     th, td {
       padding: 8px;
       border-bottom: 1px solid #ddd;
+      text-align: center;
     }
 
     body.dark th, body.dark td { border-color: #444; }
@@ -166,6 +167,12 @@
     .score-big {
       font-size: 28px;
       font-weight: 700;
+    }
+
+    .time-info {
+      font-size: 14px;
+      opacity: 0.8;
+      margin-top: 5px;
     }
 
     footer {
@@ -210,6 +217,7 @@
     <div id="result-screen" class="hidden">
       <h2>Результат</h2>
       <p class="score-big" id="final-score">0 / 100</p>
+      <p class="time-info" id="time-result">Время: 0 сек</p>
       <p id="result-text"></p>
       <button id="save-btn">Сохранить результат</button>
       <button id="play-again" class="ghost">Играть снова</button>
@@ -218,7 +226,17 @@
 
     <div id="leaders-screen" class="hidden">
       <h2>Лидеры</h2>
-      <table><thead><tr><th>#</th><th>Имя</th><th>Очки</th></tr></thead><tbody id="leaders-body"></tbody></table>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Имя</th>
+            <th>Очки</th>
+            <th>Время</th>
+          </tr>
+        </thead>
+        <tbody id="leaders-body"></tbody>
+      </table>
       <button id="back-home" class="ghost">На главную</button>
       <button id="refresh-leaders" class="ghost">Обновить</button>
     </div>
@@ -229,9 +247,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // Конфигурация Supabase - ЗАМЕНИТЕ НА СВОИ ДАННЫЕ!
-    const SUPABASE_URL = 'https://xlrmxinwpwjjurltvoms.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhscm14aW53cHdqanVybHR2b21zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3ODY3NjYsImV4cCI6MjA3ODM2Mjc2Nn0.1dUPUXBfmN3cMTkAQVHWgXdhU74hJ6U96v1M_OSoZyI';
-
+    const SUPABASE_URL = 'https://your-project-url.supabase.co';
+    const SUPABASE_ANON_KEY = 'your-anon-key';
+    
     // Инициализация Supabase
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -250,6 +268,7 @@
 
     const POINTS = 10;
     let current = 0, score = 0, player = "";
+    let startTime = 0, endTime = 0;
 
     const start = document.getElementById("start-screen");
     const quiz = document.getElementById("quiz-screen");
@@ -267,8 +286,11 @@
     document.getElementById("start-btn").onclick = ()=>{
       player = document.getElementById("player").value.trim();
       if(!player) return alert("Введите имя!");
-      current = 0; score = 0;
-      hide(start); show(quiz);
+      current = 0; 
+      score = 0;
+      startTime = Date.now(); // Запускаем таймер
+      hide(start); 
+      show(quiz);
       renderQ();
     };
 
@@ -301,29 +323,42 @@
 
     document.getElementById("next-btn").onclick=()=>{
       answered=false;
-      if(current<QUESTIONS.length-1){ current++; renderQ(); }
-      else finish();
+      if(current<QUESTIONS.length-1){ 
+        current++; 
+        renderQ(); 
+      } else {
+        finish();
+      }
     };
 
     document.getElementById("quit-btn").onclick=()=>finish();
 
     function finish(){
-      hide(quiz); show(result);
+      endTime = Date.now(); // Останавливаем таймер
+      const timeSpent = Math.floor((endTime - startTime) / 1000); // Время в секундах
+      
+      hide(quiz); 
+      show(result);
       document.getElementById("final-score").textContent=`${score} / ${QUESTIONS.length*POINTS}`;
+      document.getElementById("time-result").textContent=`Время: ${timeSpent} сек`;
+      
       const percent=(score/(QUESTIONS.length*POINTS))*100;
       document.getElementById("result-text").textContent=percent>70?"Отлично!":"Можно лучше.";
     }
 
     // Сохранение в Supabase
-    async function saveScore(){
+    async function saveScore(){ 
+      const timeSpent = Math.floor((endTime - startTime) / 1000);
+      
       try {
         const { data, error } = await supabase
           .from('leaderboard')
           .insert([
-            {
-              name: player,
+            { 
+              name: player, 
               score: score,
               total_questions: QUESTIONS.length,
+              time_seconds: timeSpent,
               created_at: new Date().toISOString()
             }
           ]);
@@ -337,13 +372,14 @@
       }
     }
 
-    // Загрузка из Supabase
-    async function getLeaders(){
+    // Загрузка из Supabase с правильной сортировкой
+    async function getLeaders(){ 
       try {
         const { data, error } = await supabase
           .from('leaderboard')
           .select('*')
           .order('score', { ascending: false })
+          .order('time_seconds', { ascending: true })
           .limit(20);
 
         if (error) throw error;
@@ -366,10 +402,10 @@
       const tbody=leaders.querySelector("tbody");
       tbody.innerHTML="";
       const arr=await getLeaders();
-      if(!arr.length){ tbody.innerHTML="<tr><td colspan=3>Нет данных</td></tr>"; return; }
+      if(!arr.length){ tbody.innerHTML="<tr><td colspan=4>Нет данных</td></tr>"; return; }
       arr.forEach((p,i)=>{
         const tr=document.createElement("tr");
-        tr.innerHTML=`<td>${i+1}</td><td>${p.name}</td><td>${p.score}</td>`;
+        tr.innerHTML=`<td>${i+1}</td><td>${p.name}</td><td>${p.score}</td><td>${p.time_seconds} сек</td>`;
         tbody.appendChild(tr);
       });
     }
