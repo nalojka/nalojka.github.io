@@ -246,9 +246,12 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Конфигурация Supabase - ЗАМЕНИТЕ НА СВОИ ДАННЫЕ!
-    const SUPABASE_URL = 'https://xlrmxinwpwjjurltvoms.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhscm14aW53cHdqanVybHR2b21zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3ODY3NjYsImV4cCI6MjA3ODM2Mjc2Nn0.1dUPUXBfmN3cMTkAQVHWgXdhU74hJ6U96v1M_OSoZyI';
+    // ⚠️ ВАЖНО: ЗАМЕНИТЕ ЭТИ ДАННЫЕ НА СВОИ ИЗ SUPABASE ⚠️
+    // 1. Зайдите в проект Supabase
+    // 2. Нажмите Settings → API 
+    // 3. Скопируйте Project URL и anon public key
+    const SUPABASE_URL = 'https://xlrmxinwpwjjurltvoms.supabase.co'; // ЗАМЕНИТЕ НА ВАШ URL
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhscm14aW53cHdqanVybHR2b21zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3ODY3NjYsImV4cCI6MjA3ODM2Mjc2Nn0.1dUPUXBfmN3cMTkAQVHWgXdhU74hJ6U96v1M_OSoZyI'; // ЗАМЕНИТЕ НА ВАШ КЛЮЧ
     
     // Инициализация Supabase
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -288,7 +291,7 @@
       if(!player) return alert("Введите имя!");
       current = 0; 
       score = 0;
-      startTime = Date.now(); // Запускаем таймер
+      startTime = Date.now();
       hide(start); 
       show(quiz);
       renderQ();
@@ -334,8 +337,8 @@
     document.getElementById("quit-btn").onclick=()=>finish();
 
     function finish(){
-      endTime = Date.now(); // Останавливаем таймер
-      const timeSpent = Math.floor((endTime - startTime) / 1000); // Время в секундах
+      endTime = Date.now();
+      const timeSpent = Math.floor((endTime - startTime) / 1000);
       
       hide(quiz); 
       show(result);
@@ -368,11 +371,11 @@
         showLeaders();
       } catch (error) {
         console.error('Ошибка сохранения:', error);
-        alert('Ошибка сохранения. Проверьте консоль.');
+        alert('Ошибка сохранения. Проверьте подключение к интернету и настройки Supabase.');
       }
     }
 
-    // Загрузка из Supabase с правильной сортировкой
+    // Загрузка из Supabase
     async function getLeaders(){ 
       try {
         const { data, error } = await supabase
@@ -386,6 +389,7 @@
         return data || [];
       } catch (error) {
         console.error('Ошибка загрузки:', error);
+        alert('Ошибка загрузки лидерборда. Проверьте настройки Supabase.');
         return [];
       }
     }
@@ -425,4 +429,3 @@
   </script>
 </body>
 </html>
-
