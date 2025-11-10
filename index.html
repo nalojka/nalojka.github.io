@@ -16,6 +16,8 @@
       --accent-dark: #66a3ff;
       --muted-light: #6c757d;
       --muted-dark: #b0b3b8;
+      --correct-bg: #d3f9d8;
+      --wrong-bg: #ffe3e3;
     }
 
     body {
@@ -33,6 +35,16 @@
     body.dark {
       background: var(--bg-dark);
       color: var(--text-dark);
+    }
+
+    body.correct-bg {
+      background: var(--correct-bg) !important;
+      transition: background 0.5s ease;
+    }
+
+    body.wrong-bg {
+      background: var(--wrong-bg) !important;
+      transition: background 0.5s ease;
     }
 
     .card {
@@ -175,6 +187,19 @@
       margin-top: 5px;
     }
 
+    .timer {
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      margin: 10px 0;
+      color: var(--accent);
+    }
+
+    .timer.warning {
+      color: #dc3545;
+      animation: pulse 1s infinite;
+    }
+
     footer {
       text-align: center;
       font-size: 13px;
@@ -187,9 +212,9 @@
     }
 
     .auto-next-timer {
-      height: 4px;
+      height: 6px;
       background: #e9ecef;
-      border-radius: 2px;
+      border-radius: 3px;
       margin-top: 10px;
       overflow: hidden;
     }
@@ -201,6 +226,10 @@
       transition: width 0.1s linear;
     }
 
+    .auto-next-progress.warning {
+      background: #dc3545;
+    }
+
     body.dark .auto-next-timer {
       background: #444;
     }
@@ -208,6 +237,12 @@
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
     }
   </style>
 </head>
@@ -227,6 +262,7 @@
       <div class="progress" id="progress"></div>
       <h2 id="question-text"></h2>
       <div class="options" id="options"></div>
+      <div class="timer" id="timer">30 сек</div>
       <div class="auto-next-timer">
         <div class="auto-next-progress" id="auto-next-progress"></div>
       </div>
@@ -284,10 +320,12 @@
     ];
 
     const POINTS = 10;
-    const AUTO_NEXT_DELAY = 100; // 1.5 секунды до автоматического перехода
+    const AUTO_NEXT_DELAY = 30; // 30 секунд до автоматического перехода
     let current = 0, score = 0, player = "";
     let startTime = 0, endTime = 0;
     let autoNextTimer = null;
+    let countdownTimer = null;
+    let timeLeft = AUTO_NEXT_DELAY / 1000;
 
     const start = document.getElementById("start-screen");
     const quiz = document.getElementById("quiz-screen");
@@ -299,9 +337,14 @@
     const prog = document.getElementById("progress");
     const leadersBody = document.getElementById("leaders-body");
     const autoNextProgress = document.getElementById("auto-next-progress");
+    const timerElement = document.getElementById("timer");
 
     function show(el){ el.classList.remove("hidden"); }
     function hide(el){ el.classList.add("hidden"); }
+
+    function resetBackground() {
+      document.body.classList.remove('correct-bg', 'wrong-bg');
+    }
 
     document.getElementById("start-btn").onclick = ()=>{
       player = document.getElementById("player").value.trim();
@@ -309,6 +352,7 @@
       current = 0; 
       score = 0;
       startTime = Date.now();
+      resetBackground();
       hide(start); 
       show(quiz);
       renderQ();
@@ -326,18 +370,87 @@
         opts.appendChild(d);
       });
       
-      // Сбрасываем таймер автоматического перехода
+      // Сбрасываем таймеры
+      resetTimers();
+      startTimers();
+    }
+
+    function resetTimers() {
+      timeLeft = AUTO_NEXT_DELAY / 1000;
+      timerElement.textContent = `${timeLeft} сек`;
+      timerElement.classList.remove('warning');
       autoNextProgress.style.width = '0%';
+      autoNextProgress.classList.remove('warning');
+      
       if (autoNextTimer) {
         clearInterval(autoNextTimer);
         autoNextTimer = null;
       }
+      if (countdownTimer) {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+      }
+    }
+
+    function startTimers() {
+      let progress = 0;
+      const interval = 100; // обновление каждые 100ms
+      const steps = AUTO_NEXT_DELAY / interval;
+      
+      // Таймер прогресс-бара
+      autoNextTimer = setInterval(() => {
+        progress += 100 / steps;
+        autoNextProgress.style.width = progress + '%';
+        
+        if (progress >= 100) {
+          clearInterval(autoNextTimer);
+          handleTimeUp();
+        }
+      }, interval);
+
+      // Счетчик секунд
+      countdownTimer = setInterval(() => {
+        timeLeft--;
+        timerElement.textContent = `${timeLeft} сек`;
+        
+        if (timeLeft <= 10) {
+          timerElement.classList.add('warning');
+          autoNextProgress.classList.add('warning');
+        }
+        
+        if (timeLeft <= 0) {
+          clearInterval(countdownTimer);
+          handleTimeUp();
+        }
+      }, 1000);
+    }
+
+    function handleTimeUp() {
+      if (autoNextTimer) {
+        clearInterval(autoNextTimer);
+        autoNextTimer = null;
+      }
+      if (countdownTimer) {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+      }
+      
+      // Автоматически переходим к следующему вопросу
+      nextQuestion();
     }
 
     function selectAnswer(selectedIndex, selectedElement){
-      if (autoNextTimer) return; // Если уже выбран ответ, игнорируем
+      if (autoNextTimer) {
+        clearInterval(autoNextTimer);
+        autoNextTimer = null;
+      }
+      if (countdownTimer) {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+      }
 
       const q = QUESTIONS[current];
+      let isCorrect = false;
       
       // Подсветка правильных/неправильных ответов
       opts.childNodes.forEach((optionEl, index) => {
@@ -348,32 +461,23 @@
         }
       });
 
-      // Начисление очков
+      // Начисление очков и изменение фона
       if (selectedIndex === q.answer) {
         score += POINTS;
+        isCorrect = true;
+        document.body.classList.add('correct-bg');
+      } else {
+        document.body.classList.add('wrong-bg');
       }
 
-      // Запускаем таймер автоматического перехода
-      startAutoNextTimer();
-    }
-
-    function startAutoNextTimer() {
-      let progress = 0;
-      const interval = 30; // обновление каждые 30ms
-      const steps = AUTO_NEXT_DELAY / interval;
-      
-      autoNextTimer = setInterval(() => {
-        progress += 100 / steps;
-        autoNextProgress.style.width = progress + '%';
-        
-        if (progress >= 100) {
-          clearInterval(autoNextTimer);
-          nextQuestion();
-        }
-      }, interval);
+      // Запускаем короткий таймер перед переходом
+      setTimeout(() => {
+        nextQuestion();
+      }, 1500);
     }
 
     function nextQuestion(){
+      resetBackground();
       if(current < QUESTIONS.length - 1){ 
         current++; 
         renderQ(); 
@@ -446,10 +550,15 @@
     document.getElementById("play-again").onclick = ()=>{ 
       hide(result); 
       show(start); 
+      resetBackground();
     };
     document.getElementById("view-leaders").onclick = showLeaders;
     document.getElementById("view-leaders-2").onclick = showLeaders;
-    document.getElementById("back-home").onclick = ()=>{ hide(leaders); show(start); };
+    document.getElementById("back-home").onclick = ()=>{ 
+      hide(leaders); 
+      show(start); 
+      resetBackground();
+    };
     document.getElementById("refresh-leaders").onclick = showLeaders;
 
     async function showLeaders(){
@@ -483,5 +592,3 @@
   </script>
 </body>
 </html>
-
-
