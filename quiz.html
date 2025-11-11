@@ -281,8 +281,8 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhscm14aW53cHdqanVybHR2b21zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3ODY3NjYsImV4cCI6MjA3ODM2Mjc2Nn0.1dUPUXBfmN3cMTkAQVHWgXdhU74hJ6U96v1M_OSoZyI';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    /***** Региональные вопросы (только оставшиеся области) *****/
-    const QUESTIONS_BY_REGION = {
+    /***** Оригинальные вопросы (не перемешанные) *****/
+    const ORIGINAL_QUESTIONS_BY_REGION = {
       "Донецкая Народная Республика": [
         { q: "Административный центр ДНР?", options: ["Донецк","Луганск","Горловка","Макеевка"], answer: 0 },
         { q: "Какая река крупнейшая в регионе?", options: ["Северский Донец","Дон","Днепр","Кальмиус"], answer: 0 },
@@ -358,6 +358,7 @@
     let startTime = 0, endTime = 0;
     let autoNextTimer = null;
     let autoNextInterval = null;
+    let currentSessionQuestions = []; // Вопросы для текущей сессии квиза
 
     /* Elements */
     const startScreen = document.getElementById('start-screen');
@@ -386,8 +387,48 @@
     const leadersBody = document.getElementById('leaders-body');
     const leadersRegionName = document.getElementById('leaders-region-name');
 
+    /***** Функции для перемешивания *****/
+    // Функция для перемешивания массива (алгоритм Фишера-Йейтса)
+    function shuffleArray(array) {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    }
+
+    // Функция для подготовки вопросов к текущей сессии квиза
+    function prepareQuestionsForSession(originalQuestions) {
+      // Создаем глубокую копию вопросов
+      const questionsCopy = JSON.parse(JSON.stringify(originalQuestions));
+      
+      // Перемешиваем порядок вопросов
+      const shuffledQuestions = shuffleArray(questionsCopy);
+      
+      // Для каждого вопроса перемешиваем варианты ответов и обновляем индекс правильного ответа
+      const processedQuestions = shuffledQuestions.map(question => {
+        // Сохраняем правильный ответ до перемешивания
+        const correctAnswer = question.options[question.answer];
+        
+        // Перемешиваем варианты ответов
+        const shuffledOptions = shuffleArray([...question.options]);
+        
+        // Находим новый индекс правильного ответа
+        const newAnswerIndex = shuffledOptions.indexOf(correctAnswer);
+        
+        return {
+          q: question.q,
+          options: shuffledOptions,
+          answer: newAnswerIndex
+        };
+      });
+      
+      return processedQuestions;
+    }
+
     /***** Инициализация списка областей в стартовом экране *****/
-    const regions = Object.keys(QUESTIONS_BY_REGION);
+    const regions = Object.keys(ORIGINAL_QUESTIONS_BY_REGION);
 
     function buildAreasGrid(){
       areasGrid.innerHTML = "";
@@ -395,7 +436,7 @@
         const d = document.createElement('div');
         d.className = 'area-card';
         d.dataset.region = r;
-        d.innerHTML = `<strong style="display:block;margin-bottom:6px;">${r}</strong><small style="opacity:.7">Вопросов: ${QUESTIONS_BY_REGION[r].length}</small>`;
+        d.innerHTML = `<strong style="display:block;margin-bottom:6px;">${r}</strong><small style="opacity:.7">Вопросов: ${ORIGINAL_QUESTIONS_BY_REGION[r].length}</small>`;
         d.onclick = () => {
           // снять активность у всех
           document.querySelectorAll('.area-card').forEach(el => el.classList.remove('active'));
@@ -454,6 +495,11 @@
       player = document.getElementById('player').value.trim();
       if(!player) return alert('Введите имя!');
       if(!selectedRegion) return alert('Выберите область, для которой пройдёте квиз.');
+      
+      // Подготавливаем вопросы для текущей сессии квиза
+      const originalQuestions = ORIGINAL_QUESTIONS_BY_REGION[selectedRegion];
+      currentSessionQuestions = prepareQuestionsForSession(originalQuestions);
+      
       // init
       current = 0; score = 0; startTime = Date.now();
       // switch
@@ -463,10 +509,9 @@
     };
 
     function renderQuestion(){
-      const questions = QUESTIONS_BY_REGION[selectedRegion];
-      const q = questions[current];
+      const q = currentSessionQuestions[current];
       qText.textContent = q.q;
-      progressText.textContent = `Вопрос ${current+1} из ${questions.length}`;
+      progressText.textContent = `Вопрос ${current+1} из ${currentSessionQuestions.length}`;
       regionLabel.textContent = selectedRegion;
       optionsBox.innerHTML = '';
       q.options.forEach((opt, i) => {
@@ -485,8 +530,7 @@
 
     function selectAnswer(idx, elClicked){
       if(autoNextTimer) return; // уже выбран — игнор
-      const questions = QUESTIONS_BY_REGION[selectedRegion];
-      const q = questions[current];
+      const q = currentSessionQuestions[current];
 
       // подсветка
       Array.from(optionsBox.children).forEach((optEl, i) => {
@@ -536,8 +580,7 @@
     }
 
     function nextOrFinish(){
-      const questions = QUESTIONS_BY_REGION[selectedRegion];
-      if(current < questions.length - 1){
+      if(current < currentSessionQuestions.length - 1){
         current++;
         renderQuestion();
       } else {
@@ -552,7 +595,7 @@
       hide(quizScreen);
       show(resultScreen);
 
-      const totalPoints = QUESTIONS_BY_REGION[selectedRegion].length * POINTS;
+      const totalPoints = currentSessionQuestions.length * POINTS;
       finalScoreEl.textContent = `${score} / ${totalPoints}`;
       timeResultEl.textContent = `Время: ${timeSpent} сек`;
 
@@ -574,6 +617,8 @@
       selectedRegion = null;
       regionLabel.textContent = '';
       document.getElementById('page-title').textContent = 'Квиз по областям';
+      // очищаем вопросы текущей сессии
+      currentSessionQuestions = [];
     };
 
     /***** Supabase: сохранение + загрузка лидеров (фильтр по region) *****/
@@ -585,7 +630,7 @@
             {
               name: player,
               score: score,
-              total_questions: QUESTIONS_BY_REGION[selectedRegion].length,
+              total_questions: currentSessionQuestions.length,
               time_seconds: timeSeconds,
               region: selectedRegion,
               created_at: new Date().toISOString()
