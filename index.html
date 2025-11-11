@@ -133,7 +133,7 @@
     </button>
 
     <h1 id="page-title">Квиз по областям</h1>
-    <p class="lead">Выберите область и пройдите квиз. Результаты сохраняются в лидерборд (Supabase).</p>
+    <p class="lead">Выберите область и пройдите квиз. Результаты сохраняются в лидерборд.</p>
 
     <!-- START SCREEN -->
     <div id="start-screen">
@@ -206,7 +206,7 @@
       </div>
     </div>
 
-    <footer id="footer-note">Данные сохраняются в облачной базе Supabase</footer>
+    <footer id="footer-note">Данные сохраняются в облачной базе </footer>
   </div>
 
   <!-- Supabase -->
@@ -575,7 +575,7 @@
         savingTextEl.textContent = "✅ Результат сохранен в лидерборд!";
       }catch(err){
         console.error('Save error', err);
-        savingTextEl.textContent = "❌ Ошибка сохранения (проверь Supabase)";
+        savingTextEl.textContent = "❌ Ошибка сохранения";
       }
     }
 
