@@ -707,23 +707,37 @@
   <script>
     // Функция для сохранения результатов в localStorage (добавить после autoSaveScore)
 // ПРОСТАЯ и надежная функция сохранения
-async function saveToLocalStorage(score, totalPoints, timeSeconds, region) {
+// ИСПРАВЛЕННАЯ функция для сохранения в localStorage
+async function saveToLocalStorage(score, totalQuestions, timeSeconds, region, playerName) {
     try {
-        // Сохраняем именно то, что видит пользователь
+        console.log('🔄 Saving to localStorage:', { 
+            score, 
+            totalQuestions, // Это должно быть количество вопросов (10), а не баллов (100)
+            timeSeconds, 
+            region, 
+            playerName 
+        });
+        
+        // Исправляем: totalQuestions должно быть количеством вопросов, а не общих баллов
+        const numberOfQuestions = totalQuestions; // totalQuestions уже передается как количество вопросов
+        
         const results = {
             score: score,
-            totalScore: totalPoints, // Общий максимальный балл
-            percentage: Math.round((score / totalPoints) * 100), // Сразу сохраняем процент
+            totalQuestions: numberOfQuestions, // Сохраняем количество вопросов (10)
+            percentage: Math.round((score / (numberOfQuestions * 10)) * 100), // score=100, questions=10 → 100%
             timeSeconds: timeSeconds,
             region: region,
+            playerName: playerName,
             completedAt: new Date().toISOString()
         };
         
         localStorage.setItem('quizResults', JSON.stringify(results));
         sessionStorage.setItem('quizResultsUpdated', 'true');
+        
+        console.log('✅ Saved results:', results);
         return true;
     } catch (err) {
-        console.error('Error saving to localStorage:', err);
+        console.error('❌ Error saving to localStorage:', err);
         return false;
     }
 }
