@@ -5,7 +5,9 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let achievementSystem;
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 DOM loaded - initializing achievement system');
     achievementSystem = new AchievementSystem();
+    achievementSystem.init();
 });
 
 const POINTS = 10;
@@ -240,7 +242,7 @@ function finishQuiz(){
   savingTextEl.textContent = "Сохраняем результат...";
   
   if (achievementSystem) {
-      achievementSystem.onQuizComplete(score);
+      achievementSystem.onQuizComplete(score, timeSpent, selectedRegion, player);
   }
   
   autoSaveScore(timeSpent);
