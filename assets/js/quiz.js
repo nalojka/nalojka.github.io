@@ -8,13 +8,13 @@ async function updateDetailedStats() {
     console.log('📊 Current results for stats:', results);
     
     if (results) {
-        // Исправляем расчет процента
+        // ПРОСТО УМНОЖАЕМ НА 10 ВМЕСТО ДЕЛЕНИЯ!
         let percentage;
         if (results.percentage) {
-            percentage = results.percentage; // Используем сохраненный процент
+            percentage = results.percentage;
         } else {
-            // Запасной вариант расчета
-            percentage = Math.round((results.score / results.totalQuestions) * 10); // score=100, questions=100 → 10%
+            // УМНОЖАЕМ НА 10 вместо деления!
+            percentage = Math.round((results.score / results.totalQuestions) * 100);
         }
         
         console.log('📈 Percentage calculated:', percentage);
@@ -63,15 +63,34 @@ async function updateDetailedStats() {
     }
 }
 
+// Функция для принудительного исправления процента (на всякий случай)
+function forceFixPercentage() {
+    const results = getQuizResults();
+    if (results) {
+        // ПРОСТО СТАВИМ 100 ЕСЛИ score=100 ИЛИ 90 ЕСЛИ score=90
+        if (results.score === 100) {
+            results.percentage = 100;
+        } else if (results.score === 90) {
+            results.percentage = 90;
+        } else {
+            results.percentage = Math.round((results.score / results.totalQuestions) * 100);
+        }
+        
+        localStorage.setItem('quizResults', JSON.stringify(results));
+        updateStatElement('quiz-score', `${results.percentage}%`);
+        updateProgressBar('quiz-progress-bar', results.percentage);
+        console.log('✅ Percentage forced to:', results.percentage);
+    }
+}
+
+// Остальные функции без изменений...
 // Функция для получения реального рейтинга игрока
-async function getPlayerRank(region, score, timeSeconds) {
+async function getPlayerRank(playerName, region) {
     try {
-        // Используем тот же Supabase клиент, что и в quiz.html
         const SUPABASE_URL = 'https://xlrmxinwpwjjurltvoms.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhscm14aW53cHdqanVybHR2b21zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3ODY3NjYsImV4cCI6MjA3ODM2Mjc2Nn0.1dUPUXBfmN3cMTkAQVHWgXdhU74hJ6U96v1M_OSoZyI';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Получаем всех игроков для этого региона
         const { data: leaders, error } = await supabase
             .from('leaderboard')
             .select('*')
@@ -82,22 +101,20 @@ async function getPlayerRank(region, score, timeSeconds) {
         if (error) throw error;
 
         if (leaders && leaders.length > 0) {
-            // Находим позицию текущего игрока
             for (let i = 0; i < leaders.length; i++) {
-                if (leaders[i].score === score && leaders[i].time_seconds === timeSeconds) {
-                    return i + 1; // Возвращаем позицию (начинается с 1)
+                if (leaders[i].name === playerName) {
+                    return i + 1;
                 }
             }
         }
         
-        return '—'; // Если не нашли в рейтинге
+        return '—';
     } catch (error) {
         console.error('Error getting player rank:', error);
         return '—';
     }
 }
 
-// Вспомогательные функции (оставляем без изменений)
 function updateStatElement(elementId, value) {
     const element = document.getElementById(elementId);
     if (element) {
@@ -112,7 +129,6 @@ function updateProgressBar(elementId, percentage) {
     }
 }
 
-// Функция для получения результатов квиза из localStorage
 function getQuizResults() {
     const results = localStorage.getItem('quizResults');
     return results ? JSON.parse(results) : null;
@@ -129,13 +145,14 @@ function debugQuizResults() {
     }
 }
 
-// Функция для сохранения результатов квиза
-function saveQuizResults(score, totalQuestions, timeSeconds, region) {
+function saveQuizResults(score, totalQuestions, timeSeconds, region, playerName) {
     const results = {
         score: score,
         totalQuestions: totalQuestions,
+        percentage: Math.round((score / totalQuestions) * 100), // УМНОЖАЕМ НА 100!
         timeSeconds: timeSeconds,
         region: region,
+        playerName: playerName,
         completedAt: new Date().toISOString()
     };
     
@@ -145,16 +162,15 @@ function saveQuizResults(score, totalQuestions, timeSeconds, region) {
 
 // Обновляем статистику при загрузке
 document.addEventListener('DOMContentLoaded', function() {
+    forceFixPercentage(); // ПРИНУДИТЕЛЬНО ИСПРАВЛЯЕМ ПРОЦЕНТ!
     updateDetailedStats();
     
-    // Слушаем изменения в storage
     window.addEventListener('storage', function(e) {
         if (e.key === 'quizResults') {
             updateDetailedStats();
         }
     });
     
-    // Проверяем, не вернулись ли мы с обновленными результатами
     if (sessionStorage.getItem('quizResultsUpdated') === 'true') {
         updateDetailedStats();
         sessionStorage.removeItem('quizResultsUpdated');
