@@ -10,42 +10,45 @@ class MapManager {
         this.setAreaNames();
         this.addEventListeners();
         this.loadBaseMap();
-        this.setupResponsiveBehavior();
     }
 
-    setupResponsiveBehavior() {
-        // Обработчик изменения размера окна
-        window.addEventListener('resize', () => {
-            this.handleResize();
-        });
-
-        // Инициализация при загрузке
-        this.handleResize();
-    }
-
-    handleResize() {
-        const width = window.innerWidth;
-        
-        // Добавляем/убираем классы в зависимости от размера экрана
-        if (width <= 480) {
-            this.mapBody.classList.add('mobile-small');
-            this.mapBody.classList.remove('mobile', 'tablet', 'desktop');
-        } else if (width <= 768) {
-            this.mapBody.classList.add('mobile');
-            this.mapBody.classList.remove('mobile-small', 'tablet', 'desktop');
-        } else if (width <= 1024) {
-            this.mapBody.classList.add('tablet');
-            this.mapBody.classList.remove('mobile-small', 'mobile', 'desktop');
-        } else {
-            this.mapBody.classList.add('desktop');
-            this.mapBody.classList.remove('mobile-small', 'mobile', 'tablet');
+    setAreaNames() {
+        for (let i = 1; i <= 10; i++) {
+            const nameElement = document.getElementById(`name_${i}`);
+            if (nameElement) {
+                nameElement.textContent = areaNames[i - 1];
+            }
         }
+    }
 
-        // Оптимизация для touch-устройств
-        if ('ontouchstart' in window || navigator.maxTouchPoints) {
-            document.body.classList.add('touch-device');
-        } else {
-            document.body.classList.remove('touch-device');
+    loadBaseMap() {
+        // Добавляем базовое изображение карты если нужно
+        // Можно раскомментировать если есть файл с картой
+        /*
+        const baseMap = document.createElement('img');
+        baseMap.src = 'assets/img/map/base-map.jpg';
+        baseMap.style.width = '100%';
+        baseMap.style.position = 'absolute';
+        baseMap.style.top = '0';
+        baseMap.style.left = '0';
+        baseMap.style.zIndex = '0';
+        this.mapBody.prepend(baseMap);
+        */
+    }
+
+    addEventListeners() {
+        this.areas.forEach((area, index) => {
+            area.addEventListener('click', () => {
+                this.handleAreaClick(index + 1);
+            });
+        });
+    }
+
+    handleAreaClick(areaId) {
+        const areaInfo = areaData[areaId];
+        if (areaInfo) {
+            this.blurBackground();
+            popupManager.showPopup(areaInfo);
         }
     }
 
