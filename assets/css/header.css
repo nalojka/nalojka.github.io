@@ -202,3 +202,33 @@
         height: var(--header-height);
     }
 }
+
+.theme-toggle:hover {
+    background: var(--hover-color);
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+    background: rgba(71, 85, 105, 0.5);
+    box-shadow: 0 5px 15px rgba(96, 165, 250, 0.2);
+}
+
+.nav a:hover {
+    color: var(--accent-color);
+    background: var(--hover-color);
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+}
+
+[data-theme="dark"] .nav a:hover {
+    background: rgba(71, 85, 105, 0.3);
+}
+
+.mobile-menu-btn:hover {
+    background: var(--hover-color);
+}
+
+[data-theme="dark"] .mobile-menu-btn:hover {
+    background: rgba(71, 85, 105, 0.3);
+}

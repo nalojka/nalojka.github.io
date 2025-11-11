@@ -32,7 +32,7 @@
     /* Дополнительные цвета для тёмной темы */
     --card-bg: rgba(30, 41, 59, 0.9);
     --border-color: rgba(71, 85, 105, 0.6);
-    --hover-color: #1e293b;
+    --hover-color: rgba(71, 85, 105, 0.3); /* Тёмный hover вместо белого */
     --gradient-primary: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
     --gradient-secondary: linear-gradient(135deg, #1e293b 0%, #334155 100%);
 }

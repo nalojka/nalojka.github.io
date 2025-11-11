@@ -259,3 +259,27 @@
         font-size: 1.5rem;
     }
 }
+
+
+.hero-card:hover {
+    transform: translateY(-8px) scale(1.03);
+    background: var(--hover-color);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border-color: var(--accent-color);
+}
+
+[data-theme="dark"] .hero-card:hover {
+    background: rgba(71, 85, 105, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.popup-close:hover {
+    background: var(--accent-color);
+    color: white;
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+}
+
+[data-theme="dark"] .popup-close:hover {
+    box-shadow: 0 5px 15px rgba(96, 165, 250, 0.3);
+}

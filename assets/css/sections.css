@@ -1083,3 +1083,74 @@ section {
         top: -10px;
     }
 }
+
+.contact-item:hover {
+    background: var(--hover-color);
+    transform: translateX(5px);
+    box-shadow: var(--shadow);
+}
+
+/* Features Section */
+.feature:hover {
+    transform: translateY(-8px) scale(1.02);
+    background: var(--hover-color);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border-color: var(--accent-color);
+}
+
+[data-theme="dark"] .feature:hover {
+    background: rgba(71, 85, 105, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* About Section */
+.about-stat:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow);
+    border-color: var(--accent-color);
+    background: var(--hover-color);
+}
+
+[data-theme="dark"] .about-stat:hover {
+    background: rgba(71, 85, 105, 0.3);
+}
+
+/* Statistics Section */
+.stat-card:hover {
+    transform: translateY(-10px) scale(1.05);
+    background: var(--hover-color);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(59, 130, 246, 0.1);
+    border-color: var(--accent-color);
+}
+
+[data-theme="dark"] .stat-card:hover {
+    background: rgba(71, 85, 105, 0.3);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(96, 165, 250, 0.2);
+}
+
+.extra-stat:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+    border-color: var(--accent-color);
+    background: var(--hover-color);
+}
+
+[data-theme="dark"] .extra-stat:hover {
+    background: rgba(71, 85, 105, 0.3);
+}
+
+/* Form hover effects */
+.contact-form input:hover,
+.contact-form textarea:hover {
+    border-color: var(--accent-color);
+    background: var(--hover-color);
+}
+
+[data-theme="dark"] .contact-form input:hover,
+[data-theme="dark"] .contact-form textarea:hover {
+    background: rgba(71, 85, 105, 0.4);
+}
