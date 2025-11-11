@@ -704,5 +704,58 @@
     /***** On load: if theme saved, restore; build areas (already done)  *****/
     // buildAreasGrid(); // already built earlier
   </script>
+  <script>
+    // Функция для сохранения результатов в localStorage (добавить после autoSaveScore)
+async function saveToLocalStorage(score, totalQuestions, timeSeconds, region) {
+    try {
+        const results = {
+            score: score,
+            totalQuestions: totalQuestions,
+            timeSeconds: timeSeconds,
+            region: region,
+            completedAt: new Date().toISOString()
+        };
+        
+        localStorage.setItem('quizResults', JSON.stringify(results));
+        sessionStorage.setItem('quizResultsUpdated', 'true');
+        return true;
+    } catch (err) {
+        console.error('Error saving to localStorage:', err);
+        return false;
+    }
+}
+
+// Обновленная функция finishQuiz - добавить вызов сохранения в localStorage
+function finishQuiz() {
+    endTime = Date.now();
+    const timeSpent = Math.floor((endTime - startTime) / 1000);
+
+    hide(quizScreen);
+    show(resultScreen);
+
+    const totalPoints = currentSessionQuestions.length * POINTS;
+    finalScoreEl.textContent = `${score} / ${totalPoints}`;
+    timeResultEl.textContent = `Время: ${timeSpent} сек`;
+
+    const pct = Math.round((score / totalPoints) * 100);
+    if(pct >= 80) resultTextEl.textContent = "Отлично! 🎉";
+    else if(pct >= 60) resultTextEl.textContent = "Хорошо! 👍";
+    else resultTextEl.textContent = "Можно лучше! 💪";
+
+    // сохранение
+    savingTextEl.textContent = "Сохраняем результат...";
+    
+    // Сохраняем и в Supabase, и в localStorage
+    Promise.all([
+        autoSaveScore(timeSpent),
+        saveToLocalStorage(score, totalPoints, timeSpent, selectedRegion)
+    ]).then(() => {
+        savingTextEl.textContent = "✅ Результат сохранен!";
+    }).catch(err => {
+        console.error('Save error', err);
+        savingTextEl.textContent = "❌ Ошибка сохранения";
+    });
+}
+  </script>
 </body>
 </html>
