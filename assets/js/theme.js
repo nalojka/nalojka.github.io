@@ -2,7 +2,7 @@
 class ThemeManager {
     constructor() {
         this.themeToggle = document.getElementById('themeToggle');
-        this.themeIcon = document.querySelector('.theme-icon');
+        this.themeIcon = this.themeToggle.querySelector('i'); // Получаем иконку внутри кнопки
         this.currentTheme = localStorage.getItem('theme') || 'light';
         
         this.init();
@@ -40,10 +40,12 @@ class ThemeManager {
     
     updateIcon() {
         if (this.currentTheme === 'dark') {
-            this.themeIcon.textContent = '☀️';
+            // Для тёмной темы - солнце
+            this.themeIcon.className = 'fa-solid fa-sun';
             this.themeIcon.title = 'Переключить на светлую тему';
         } else {
-            this.themeIcon.textContent = '🌙';
+            // Для светлой темы - луна
+            this.themeIcon.className = 'fa-solid fa-moon';
             this.themeIcon.title = 'Переключить на тёмную тему';
         }
     }
