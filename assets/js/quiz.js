@@ -1,33 +1,56 @@
 // Исправленная функция для обновления статистики
 // ИСПРАВЛЕННАЯ функция для обновления статистики
-function updateDetailedStats() {
+// ИСПРАВЛЕННАЯ функция для обновления статистики
+async function updateDetailedStats() {
     const results = getQuizResults();
-    console.log('Current results:', results); // Отладка
+    console.log('📊 Current results for stats:', results);
     
     if (results) {
-        // Если у нас есть сохраненный процент - используем его
+        // Исправляем расчет процента
+        let percentage;
         if (results.percentage) {
-            updateStatElement('quiz-score', `${results.percentage}%`);
-            updateProgressBar('quiz-progress-bar', results.percentage);
+            percentage = results.percentage; // Используем сохраненный процент
         } else {
-            // Старая логика для обратной совместимости
-            const percentage = Math.round((results.score / results.totalQuestions) * 100);
-            updateStatElement('quiz-score', `${percentage}%`);
-            updateProgressBar('quiz-progress-bar', percentage);
+            // Запасной вариант расчета
+            percentage = Math.round((results.score / results.totalQuestions) * 10); // score=100, questions=100 → 10%
         }
         
-        updateStatElement('quiz-time', `${results.timeSeconds} сек`);
+        console.log('📈 Percentage calculated:', percentage);
         
-        // Временно показываем прочерк для рейтинга, пока не починим базу
-        updateStatElement('quiz-rank', '—');
-        updateProgressBar('rank-progress-bar', 0);
+        updateStatElement('quiz-score', `${percentage}%`);
+        updateProgressBar('quiz-progress-bar', percentage);
+        updateStatElement('quiz-time', `${results.timeSeconds} сек`);
         
         // Прогресс для времени
         const maxReasonableTime = 300;
         const timePercentage = Math.max(0, Math.min(100, 100 - (results.timeSeconds / maxReasonableTime) * 100));
         updateProgressBar('time-progress-bar', timePercentage);
         
+        // Получаем и отображаем рейтинг
+        if (results.playerName && results.region) {
+            console.log('🔍 Searching for player:', results.playerName, 'in region:', results.region);
+            updateStatElement('quiz-rank', 'Загрузка...');
+            
+            const rank = await getPlayerRank(results.playerName, results.region);
+            console.log('🏆 Rank found:', rank);
+            
+            updateStatElement('quiz-rank', rank);
+            
+            // Обновляем прогресс-бар рейтинга
+            let rankProgress = 0;
+            if (rank !== '—' && typeof rank === 'number') {
+                rankProgress = rank === 1 ? 100 : rank === 2 ? 80 : rank === 3 ? 60 : 
+                             rank <= 5 ? 40 : rank <= 10 ? 20 : 10;
+            }
+            updateProgressBar('rank-progress-bar', rankProgress);
+        } else {
+            console.log('❌ No player name or region found');
+            updateStatElement('quiz-rank', '—');
+            updateProgressBar('rank-progress-bar', 0);
+        }
+        
     } else {
+        console.log('❌ No quiz results found');
         // Сбрасываем значения по умолчанию
         updateStatElement('quiz-score', '0%');
         updateStatElement('quiz-time', '0 сек');
