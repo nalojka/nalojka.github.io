@@ -25,15 +25,13 @@ class AchievementSystem {
         this.completedRegions = new Set();
         this.achievementQueue = [];
         this.isShowingAchievement = false;
-        this.preloadedImages = new Map(); // Кэш предзагруженных изображений
+        this.preloadedImages = new Map();
     }
 
     async init() {
         console.log('✅ AchievementSystem init called!');
         await this.loadAchievements();
         this.setupAchievementsContainer();
-        
-        // Предзагрузка всех изображений
         await this.preloadAllImages();
         console.log('✅ All achievement images preloaded');
     }
@@ -97,17 +95,21 @@ class AchievementSystem {
                 };
                 img.onerror = () => {
                     console.warn('Failed to preload image:', achievement.image);
-                    // Создаем fallback изображение
+                    // Fallback - создаем цветной квадрат БЕЗ ТЕКСТА
                     const canvas = document.createElement('canvas');
                     canvas.width = 80;
                     canvas.height = 80;
                     const ctx = canvas.getContext('2d');
-                    ctx.fillStyle = '#f0f0f0';
+                    
+                    // Разные цвета для разных типов достижений
+                    let color = '#4CAF50'; // Зеленый по умолчанию
+                    if (id.includes('place')) color = '#FFD700'; // Золотой для мест
+                    if (id.includes('score')) color = '#2196F3'; // Синий для баллов
+                    if (id.includes('quiz')) color = '#9C27B0'; // Фиолетовый для квизов
+                    if (id.includes('minute') || id.includes('second')) color = '#FF5722'; // Оранжевый для времени
+                    
+                    ctx.fillStyle = color;
                     ctx.fillRect(0, 0, 80, 80);
-                    ctx.fillStyle = '#000';
-                    ctx.font = '12px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(id, 40, 45);
                     
                     const fallbackImg = new Image();
                     fallbackImg.src = canvas.toDataURL();
@@ -127,24 +129,21 @@ class AchievementSystem {
 
     // Получение оптимального размера для изображения
     getOptimalSize(naturalWidth, naturalHeight) {
-        const maxSize = 100; // Максимальный размер
-        const minSize = 60;  // Минимальный размер
+        const maxSize = 100;
+        const minSize = 60;
         
         const aspectRatio = naturalWidth / naturalHeight;
         
         let width, height;
         
         if (aspectRatio > 1) {
-            // Ширина больше высоты
             width = Math.min(maxSize, naturalWidth);
             height = width / aspectRatio;
         } else {
-            // Высота больше ширины или квадрат
             height = Math.min(maxSize, naturalHeight);
             width = height * aspectRatio;
         }
         
-        // Гарантируем минимальный размер
         if (width < minSize) {
             width = minSize;
             height = width / aspectRatio;
@@ -226,14 +225,20 @@ class AchievementSystem {
                 background-color: #ffffff;
             `;
         } else {
-            // Fallback
+            // Fallback БЕЗ ТЕКСТА - просто цветной квадрат
+            let color = '#4CAF50';
+            if (achievementId.includes('place')) color = '#FFD700';
+            if (achievementId.includes('score')) color = '#2196F3';
+            if (achievementId.includes('quiz')) color = '#9C27B0';
+            if (achievementId.includes('minute') || achievementId.includes('second')) color = '#FF5722';
+            
             achievementElement.style.cssText = `
                 transform: translateX(-150px);
                 opacity: 0;
                 transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
                 border-radius: 12px;
                 box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-                background-color: #4CAF50;
+                background-color: ${color};
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -241,13 +246,7 @@ class AchievementSystem {
                 height: 80px;
                 flex-shrink: 0;
                 border: 3px solid #2E7D32;
-                color: white;
-                font-size: 12px;
-                text-align: center;
-                font-weight: bold;
-                padding: 5px;
             `;
-            achievementElement.textContent = achievementId;
         }
         
         container.appendChild(achievementElement);
@@ -276,7 +275,7 @@ class AchievementSystem {
                     achievementElement.parentNode.removeChild(achievementElement);
                 }
                 this.isShowingAchievement = false;
-                setTimeout(() => this.processQueue(), 100); // Задержка перед следующим
+                setTimeout(() => this.processQueue(), 100);
             }, 600);
         }, 3500);
     }
@@ -335,7 +334,7 @@ class AchievementSystem {
         achievementsToUnlock.forEach((achievementId, index) => {
             setTimeout(() => {
                 this.unlockAchievement(achievementId);
-            }, index * 4000); // Увеличил задержку между достижениями
+            }, index * 4000);
         });
         
         this.saveAchievements();
