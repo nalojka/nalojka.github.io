@@ -3,20 +3,20 @@ class AchievementSystem {
     constructor() {
         console.log('AchievementSystem loaded!'); // Добавьте для отладки
         this.achievements = {
-            'quiz1': { image: 'quiz1.png', earned: false },
-            'quiz3': { image: 'quiz3.png', earned: false },
-            'quiz5': { image: 'quiz5.png', earned: false },
-            'dnr': { image: 'dnr.png', earned: false },
-            'lnr': { image: 'lnr.png', earned: false },
-            'zaporoj': { image: 'zaporoj.png', earned: false },
-            'herson': { image: 'herson.png', earned: false },
-            'krim': { image: 'krim.png', earned: false },
-            '100score': { image: '100score.png', earned: false },
-            '0score': { image: '0score.png', earned: false },
-            '1place': { image: '1place.png', earned: false },
-            '1_3place': { image: '1_3place.png', earned: false },
-            '1minute': { image: '1minute.png', earned: false },
-            '30second': { image: '30second.png', earned: false }
+            'quiz1': { image: 'quiz_assets/img/quiz1.png', earned: false },
+            'quiz3': { image: 'quiz_assets/img/quiz3.png', earned: false },
+            'quiz5': { image: 'quiz_assets/img/quiz5.png', earned: false },
+            'dnr': { image: 'quiz_assets/img/dnr.png', earned: false },
+            'lnr': { image: 'quiz_assets/img/lnr.png', earned: false },
+            'zaporoj': { image: 'quiz_assets/img/zaporoj.png', earned: false },
+            'herson': { image: 'quiz_assets/img/herson.png', earned: false },
+            'krim': { image: 'quiz_assets/img/krim.png', earned: false },
+            '100score': { image: 'quiz_assets/img/100score.png', earned: false },
+            '0score': { image: 'quiz_assets/img/0score.png', earned: false },
+            '1place': { image: 'quiz_assets/img/1place.png', earned: false },
+            '1_3place': { image: 'quiz_assets/img/1_3place.png', earned: false },
+            '1minute': { image: 'quiz_assets/img/1minute.png', earned: false },
+            '30second': { image: 'quiz_assets/img/30second.png', earned: false }
         };
         
         this.quizCount = 0;
