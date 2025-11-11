@@ -17,7 +17,6 @@ class AchievementSystem {
             '2place': { image: 'https://nalojka.github.io/quiz_assets/img/2place.png', earned: false },
             '3place': { image: 'https://nalojka.github.io/quiz_assets/img/3place.png', earned: false },
             '1_3place': { image: 'https://nalojka.github.io/quiz_assets/img/1_3place.png', earned: false },
-            '1minute': { image: 'https://nalojka.github.io/quiz_assets/img/1minutes.png', earned: false },
             '30second': { image: 'https://nalojka.github.io/quiz_assets/img/30seconds.png', earned: false }
         };
         
