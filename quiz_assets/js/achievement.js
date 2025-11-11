@@ -25,12 +25,16 @@ class AchievementSystem {
         this.completedRegions = new Set();
         this.achievementQueue = [];
         this.isShowingAchievement = false;
+        this.imageSizes = new Map(); // Кэш размеров изображений
     }
 
     async init() {
         console.log('✅ AchievementSystem init called!');
         await this.loadAchievements();
         this.setupAchievementsContainer();
+        
+        // Предзагрузка изображений для определения размеров
+        this.preloadImages();
     }
 
     async loadAchievements() {
@@ -74,85 +78,54 @@ class AchievementSystem {
             `;
             document.body.appendChild(container);
             console.log('✅ Achievements container created!');
-            
-            this.addResponsiveStyles();
         }
     }
 
-    addResponsiveStyles() {
-        const style = document.createElement('style');
-        style.textContent = `
-            #achievements-container {
-                position: fixed;
-                top: 20px;
-                left: 20px;
-                z-index: 10000;
-                pointer-events: none;
-                max-height: calc(100vh - 40px);
-                overflow-y: auto;
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .achievement {
-                width: 80px;
-                height: 80px;
-                transform: translateX(-100px);
-                opacity: 0;
-                transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-                border-radius: 12px;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-                background-size: contain;
-                background-repeat: no-repeat;
-                background-position: center;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 12px;
-                text-align: center;
-                font-weight: bold;
-                flex-shrink: 0;
-            }
-            
-            /* Адаптивность */
-            @media (max-width: 768px) {
-                .achievement {
-                    width: 60px;
-                    height: 60px;
-                    font-size: 10px;
-                }
-                
-                #achievements-container {
-                    left: 10px;
-                    top: 10px;
-                    gap: 8px;
-                }
-            }
-            
-            @media (max-width: 480px) {
-                .achievement {
-                    width: 50px;
-                    height: 50px;
-                    font-size: 8px;
-                }
-                
-                #achievements-container {
-                    left: 5px;
-                    top: 5px;
-                    gap: 5px;
-                }
-            }
-            
-            @media (min-width: 1200px) {
-                .achievement {
-                    width: 90px;
-                    height: 90px;
-                    font-size: 14px;
-                }
-            }
-        `;
-        document.head.appendChild(style);
+    // Предзагрузка изображений для определения размеров
+    preloadImages() {
+        Object.values(this.achievements).forEach(achievement => {
+            const img = new Image();
+            img.onload = () => {
+                this.imageSizes.set(achievement.image, {
+                    width: img.naturalWidth,
+                    height: img.naturalHeight
+                });
+            };
+            img.src = achievement.image;
+        });
+    }
+
+    // Получение оптимального размера для изображения
+    getOptimalSize(naturalWidth, naturalHeight) {
+        const maxSize = 120; // Максимальный размер
+        const minSize = 60;  // Минимальный размер
+        
+        // Определяем доминирующую сторону
+        const aspectRatio = naturalWidth / naturalHeight;
+        
+        let width, height;
+        
+        if (aspectRatio > 1) {
+            // Ширина больше высоты
+            width = Math.min(maxSize, naturalWidth);
+            height = width / aspectRatio;
+        } else {
+            // Высота больше ширины или квадрат
+            height = Math.min(maxSize, naturalHeight);
+            width = height * aspectRatio;
+        }
+        
+        // Гарантируем минимальный размер
+        if (width < minSize) {
+            width = minSize;
+            height = width / aspectRatio;
+        }
+        if (height < minSize) {
+            height = minSize;
+            width = height * aspectRatio;
+        }
+        
+        return { width: Math.round(width), height: Math.round(height) };
     }
 
     unlockAchievement(achievementId) {
@@ -189,30 +162,104 @@ class AchievementSystem {
         
         const achievementElement = document.createElement('div');
         achievementElement.className = 'achievement';
-        achievementElement.style.backgroundImage = `url('${achievement.image}')`;
         
-        container.appendChild(achievementElement);
-
-        // Автопрокрутка к новому достижению
-        container.scrollTop = container.scrollHeight;
-
-        requestAnimationFrame(() => {
-            achievementElement.style.transform = 'translateX(0)';
-            achievementElement.style.opacity = '1';
-        });
-
-        setTimeout(() => {
-            achievementElement.style.transform = 'translateX(-100px)';
-            achievementElement.style.opacity = '0';
+        // Создаем изображение для определения размеров
+        const img = new Image();
+        img.onload = () => {
+            const optimalSize = this.getOptimalSize(img.naturalWidth, img.naturalHeight);
             
+            // Устанавливаем размеры контейнера под изображение
+            achievementElement.style.cssText = `
+                transform: translateX(-100px);
+                opacity: 0;
+                transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                border-radius: 12px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                background-image: url('${achievement.image}');
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: ${optimalSize.width}px;
+                height: ${optimalSize.height}px;
+                flex-shrink: 0;
+                border: 2px solid #000;
+                background-color: #f0f0f0;
+            `;
+            
+            container.appendChild(achievementElement);
+
+            // Автопрокрутка к новому достижению
+            container.scrollTop = container.scrollHeight;
+
+            requestAnimationFrame(() => {
+                achievementElement.style.transform = 'translateX(0)';
+                achievementElement.style.opacity = '1';
+            });
+
             setTimeout(() => {
-                if (achievementElement.parentNode) {
-                    achievementElement.parentNode.removeChild(achievementElement);
-                }
-                this.isShowingAchievement = false;
-                this.processQueue();
-            }, 500);
-        }, 3000);
+                achievementElement.style.transform = 'translateX(-100px)';
+                achievementElement.style.opacity = '0';
+                
+                setTimeout(() => {
+                    if (achievementElement.parentNode) {
+                        achievementElement.parentNode.removeChild(achievementElement);
+                    }
+                    this.isShowingAchievement = false;
+                    this.processQueue();
+                }, 500);
+            }, 3000);
+        };
+        
+        img.onerror = () => {
+            console.error('Failed to load achievement image:', achievement.image);
+            // Fallback на стандартный размер
+            achievementElement.style.cssText = `
+                transform: translateX(-100px);
+                opacity: 0;
+                transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                border-radius: 12px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                background-color: #f0f0f0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 80px;
+                height: 80px;
+                flex-shrink: 0;
+                border: 2px solid #000;
+                font-size: 12px;
+                text-align: center;
+                font-weight: bold;
+            `;
+            achievementElement.textContent = achievementId;
+            
+            container.appendChild(achievementElement);
+
+            container.scrollTop = container.scrollHeight;
+
+            requestAnimationFrame(() => {
+                achievementElement.style.transform = 'translateX(0)';
+                achievementElement.style.opacity = '1';
+            });
+
+            setTimeout(() => {
+                achievementElement.style.transform = 'translateX(-100px)';
+                achievementElement.style.opacity = '0';
+                
+                setTimeout(() => {
+                    if (achievementElement.parentNode) {
+                        achievementElement.parentNode.removeChild(achievementElement);
+                    }
+                    this.isShowingAchievement = false;
+                    this.processQueue();
+                }, 500);
+            }, 3000);
+        };
+        
+        img.src = achievement.image;
     }
 
     async onQuizComplete(score, timeSeconds, region, playerName) {
@@ -318,6 +365,7 @@ class AchievementSystem {
         this.completedRegions.clear();
         this.achievementQueue = [];
         this.isShowingAchievement = false;
+        this.imageSizes.clear();
         localStorage.removeItem('quiz_achievements');
         
         const container = document.getElementById('achievements-container');
