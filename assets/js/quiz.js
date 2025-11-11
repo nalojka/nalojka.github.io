@@ -75,3 +75,75 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.removeItem('quizResultsUpdated');
     }
 });
+
+// Расширенная функция для обновления статистики
+function updateDetailedStats() {
+    const results = getQuizResults();
+    const quizButton = document.querySelector('.cta-button[onclick="goToQuiz()"]');
+    const quizButtonText = document.getElementById('quiz-button-text');
+    
+    if (results) {
+        // Пользователь прошел квиз
+        if (quizButtonText) {
+            quizButtonText.textContent = 'Пройти Quiz снова';
+        }
+        
+        // Обновляем элементы статистики
+        updateStatElement('quiz-score', `${Math.round((results.score / (results.totalQuestions * 10)) * 100)}%`);
+        updateStatElement('quiz-time', `${results.timeSeconds} сек`);
+        updateStatElement('quiz-rank', '—'); // Можно доработать для реального рейтинга
+        
+        // Обновляем прогресс-бары
+        updateProgressBar('quiz-progress-bar', Math.round((results.score / (results.totalQuestions * 10)) * 100));
+        updateProgressBar('time-progress-bar', Math.min(100, Math.round((300 - results.timeSeconds) / 3))); // Инверсная шкала для времени
+        updateProgressBar('rank-progress-bar', 0); // Заглушка для рейтинга
+        
+    } else {
+        // Пользователь не проходил квиз
+        if (quizButtonText) {
+            quizButtonText.textContent = 'Пройти Quiz';
+        }
+        
+        // Сбрасываем значения по умолчанию
+        updateStatElement('quiz-score', '0%');
+        updateStatElement('quiz-time', '0 сек');
+        updateStatElement('quiz-rank', '—');
+        
+        updateProgressBar('quiz-progress-bar', 0);
+        updateProgressBar('time-progress-bar', 0);
+        updateProgressBar('rank-progress-bar', 0);
+    }
+}
+
+// Вспомогательные функции
+function updateStatElement(elementId, value) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.textContent = value;
+    }
+}
+
+function updateProgressBar(elementId, percentage) {
+    const progressBar = document.getElementById(elementId);
+    if (progressBar) {
+        progressBar.style.width = `${percentage}%`;
+    }
+}
+
+// Обновляем статистику при загрузке и при возвращении на страницу
+document.addEventListener('DOMContentLoaded', function() {
+    updateDetailedStats();
+    
+    // Слушаем изменения в storage для обновления в реальном времени
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'quizResults') {
+            updateDetailedStats();
+        }
+    });
+    
+    // Проверяем, не вернулись ли мы с обновленными результатами
+    if (sessionStorage.getItem('quizResultsUpdated') === 'true') {
+        updateDetailedStats();
+        sessionStorage.removeItem('quizResultsUpdated');
+    }
+});
