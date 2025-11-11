@@ -1,3 +1,4 @@
+// === ОСНОВНОЙ КОД КВИЗА ===
 const SUPABASE_URL = 'https://xlrmxinwpwjjurltvoms.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhscm14aW53cHdqanVybHR2b21zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3ODY3NjYsImV4cCI6MjA3ODM2Mjc2Nn0.1dUPUXBfmN3cMTkAQVHWgXdhU74hJ6U96v1M_OSoZyI';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -259,6 +260,7 @@ playAgainBtn.onclick = () => {
 
 async function autoSaveScore(timeSeconds){
   try{
+    // Ищем существующий результат для этого игрока и региона
     const { data: existingResults, error: checkError } = await supabase
       .from('leaderboard')
       .select('*')
@@ -268,20 +270,33 @@ async function autoSaveScore(timeSeconds){
     if(checkError) throw checkError;
 
     let shouldSave = true;
+    let isNewRecord = true;
     
     if(existingResults && existingResults.length > 0) {
-      const bestResult = existingResults.reduce((best, current) => {
-        if(current.score > best.score) return current;
-        if(current.score === best.score && current.time_seconds < best.time_seconds) return current;
-        return best;
-      });
+      isNewRecord = false;
+      const existingResult = existingResults[0];
+      
+      // Сохраняем только если новый результат ЛУЧШЕ
+      if(score > existingResult.score || 
+         (score === existingResult.score && timeSeconds < existingResult.time_seconds)) {
+        
+        // УДАЛЯЕМ старый результат и сохраняем новый
+        const { error: deleteError } = await supabase
+          .from('leaderboard')
+          .delete()
+          .eq('name', player)
+          .eq('region', selectedRegion);
 
-      if(score < bestResult.score || (score === bestResult.score && timeSeconds >= bestResult.time_seconds)) {
+        if(deleteError) throw deleteError;
+        
+        savingTextEl.textContent = "✅ Новый рекорд! Результат обновлен!";
+      } else {
         shouldSave = false;
         savingTextEl.textContent = "Ваш результат не улучшил предыдущее достижение";
       }
     }
 
+    // Сохраняем новый результат
     if(shouldSave) {
       const { data, error } = await supabase
         .from('leaderboard')
@@ -296,7 +311,10 @@ async function autoSaveScore(timeSeconds){
           }
         ]);
       if(error) throw error;
-      savingTextEl.textContent = "✅ Результат сохранен в лидерборд!";
+      
+      if(isNewRecord) {
+        savingTextEl.textContent = "✅ Результат сохранен в лидерборд!";
+      }
     }
 
   }catch(err){
