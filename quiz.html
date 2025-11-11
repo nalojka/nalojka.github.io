@@ -706,11 +706,14 @@
   </script>
   <script>
     // Функция для сохранения результатов в localStorage (добавить после autoSaveScore)
-async function saveToLocalStorage(score, totalQuestions, timeSeconds, region) {
+// ПРОСТАЯ и надежная функция сохранения
+async function saveToLocalStorage(score, totalPoints, timeSeconds, region) {
     try {
+        // Сохраняем именно то, что видит пользователь
         const results = {
             score: score,
-            totalQuestions: totalQuestions,
+            totalScore: totalPoints, // Общий максимальный балл
+            percentage: Math.round((score / totalPoints) * 100), // Сразу сохраняем процент
             timeSeconds: timeSeconds,
             region: region,
             completedAt: new Date().toISOString()
