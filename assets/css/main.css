@@ -15,7 +15,7 @@ body {
     overflow-x: hidden;
     color: var(--text-color);
     line-height: 1.6;
-    transition: background 0.5s ease;
+    transition: background 0.5s ease, color 0.3s ease;
     position: relative;
 }
 
@@ -33,6 +33,14 @@ body::before {
     background-size: 50px 50px, 30px 30px;
     pointer-events: none;
     z-index: -1;
+    transition: opacity 0.5s ease;
+}
+
+[data-theme="dark"] body::before {
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(96, 165, 250, 0.05) 1px, transparent 1px),
+        radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+    opacity: 0.3;
 }
 
 /* Улучшенная доступность */
@@ -43,7 +51,7 @@ button:focus {
     border-radius: 4px;
 }
 
-/* Кастомный скроллбар для светлой темы */
+/* Кастомный скроллбар будет управляться через JavaScript */
 ::-webkit-scrollbar {
     width: 12px;
 }
@@ -51,6 +59,7 @@ button:focus {
 ::-webkit-scrollbar-track {
     background: rgba(241, 245, 249, 0.8);
     border-radius: 6px;
+    transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -58,6 +67,7 @@ button:focus {
     border-radius: 6px;
     border: 3px solid transparent;
     background-clip: padding-box;
+    transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -99,4 +109,9 @@ button:focus {
     background: var(--accent-color);
     color: white;
     text-shadow: none;
+}
+
+[data-theme="dark"] ::selection {
+    background: var(--accent-color);
+    color: #1e293b;
 }

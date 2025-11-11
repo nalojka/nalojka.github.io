@@ -18,3 +18,21 @@
     --gradient-primary: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     --gradient-secondary: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
 }
+
+/* Тёмная тема */
+[data-theme="dark"] {
+    --primary-color: #0a0f2d;
+    --secondary-color: #111827;
+    --accent-color: #60a5fa;
+    --text-light: #e2e8f0;
+    --text-dark: #f1f5f9;
+    --text-color: #cbd5e1;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    
+    /* Дополнительные цвета для тёмной темы */
+    --card-bg: rgba(30, 41, 59, 0.9);
+    --border-color: rgba(71, 85, 105, 0.6);
+    --hover-color: #1e293b;
+    --gradient-primary: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    --gradient-secondary: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+}

@@ -13,13 +13,20 @@
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
 }
 
+[data-theme="dark"] .header {
+    background: rgba(15, 23, 42, 0.95);
+}
+
 .header.scrolled {
     background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(25px);
     -webkit-backdrop-filter: blur(25px);
     height: 70px;
     box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
-    /* Убедитесь, что здесь нет синих цветов */
+}
+
+[data-theme="dark"] .header.scrolled {
+    background: rgba(15, 23, 42, 0.98);
 }
 
 .header-content {
@@ -91,10 +98,11 @@
     color: var(--accent-color);
 }
 
+/* Обновлённый переключатель темы */
 .theme-toggle {
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.2);
-    color: var(--accent-color);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
     width: 44px;
     height: 44px;
     border-radius: 50%;
@@ -105,11 +113,22 @@
     justify-content: center;
     font-size: 1.2rem;
     backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
 }
 
 .theme-toggle:hover {
-    background: rgba(59, 130, 246, 0.2);
-    transform: rotate(180deg) scale(1.1);
+    background: var(--hover-color);
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.theme-icon {
+    transition: all 0.3s ease;
+}
+
+.theme-toggle:hover .theme-icon {
+    transform: rotate(180deg);
 }
 
 /* Mobile menu */
