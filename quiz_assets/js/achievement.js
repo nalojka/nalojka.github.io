@@ -3,22 +3,22 @@ class AchievementSystem {
     constructor() {
         console.log('✅ AchievementSystem constructor called!');
         this.achievements = {
-            'quiz1': { image: 'quiz_assets/img/1quiz.png', earned: false },
-            'quiz3': { image: 'quiz_assets/img/3quiz.png', earned: false },
-            'quiz5': { image: 'quiz_assets/img/5quiz.png', earned: false },
-            'dnr': { image: 'quiz_assets/img/dnr.png', earned: false },
-            'lnr': { image: 'quiz_assets/img/lnr.png', earned: false },
-            'zaporoj': { image: 'quiz_assets/img/zaporoj.png', earned: false },
-            'herson': { image: 'quiz_assets/img/herson.png', earned: false },
-            'krim': { image: 'quiz_assets/img/krim.png', earned: false },
-            '100score': { image: 'quiz_assets/img/100score.png', earned: false },
-            '0score': { image: 'quiz_assets/img/0score.png', earned: false },
-            '1place': { image: 'quiz_assets/img/1place.png', earned: false },
-            '2place': { image: 'quiz_assets/img/2place.png', earned: false },
-            '3place': { image: 'quiz_assets/img/3place.png', earned: false },
-            '1_3place': { image: 'quiz_assets/img/1_3place.png', earned: false },
-            '1minute': { image: 'quiz_assets/img/1minutes.png', earned: false },
-            '30second': { image: 'quiz_assets/img/30seconds.png', earned: false }
+            'quiz1': { image: '/quiz_assets/img/1quiz.png', earned: false },
+            'quiz3': { image: '/quiz_assets/img/3quiz.png', earned: false },
+            'quiz5': { image: '/quiz_assets/img/5quiz.png', earned: false },
+            'dnr': { image: '/quiz_assets/img/dnr.png', earned: false },
+            'lnr': { image: '/quiz_assets/img/lnr.png', earned: false },
+            'zaporoj': { image: '/quiz_assets/img/zaporoj.png', earned: false },
+            'herson': { image: '/quiz_assets/img/herson.png', earned: false },
+            'krim': { image: '/quiz_assets/img/krim.png', earned: false },
+            '100score': { image: '/quiz_assets/img/100score.png', earned: false },
+            '0score': { image: '/quiz_assets/img/0score.png', earned: false },
+            '1place': { image: '/quiz_assets/img/1place.png', earned: false },
+            '2place': { image: '/quiz_assets/img/2place.png', earned: false },
+            '3place': { image: '/quiz_assets/img/3place.png', earned: false },
+            '1_3place': { image: '/quiz_assets/img/1_3place.png', earned: false },
+            '1minute': { image: '/quiz_assets/img/1minutes.png', earned: false },
+            '30second': { image: '/quiz_assets/img/30seconds.png', earned: false }
         };
         
         this.quizCount = 0;
