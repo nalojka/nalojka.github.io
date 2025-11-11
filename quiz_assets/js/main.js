@@ -1,4 +1,22 @@
 // === ОСНОВНОЙ КОД КВИЗА ===
+
+// ==== ПОЛУЧЕНИЕ IP ====
+let USER_IP = "не определён";
+
+async function getUserIP() {
+  try {
+    const res = await fetch("https://api.ipify.org?format=json");
+    const data = await res.json();
+    USER_IP = data.ip;
+    console.log("IP пользователя:", USER_IP);
+  } catch (e) {
+    console.error("Ошибка получения IP:", e);
+  }
+}
+getUserIP();
+// ======================
+
+// Supabase
 const SUPABASE_URL = 'https://xlrmxinwpwjjurltvoms.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhscm14aW53cHdqanVybHR2b21zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3ODY3NjYsImV4cCI6MjA3ODM2Mjc2Nn0.1dUPUXBfmN3cMTkAQVHWgXdhU74hJ6U96v1M_OSoZyI';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -131,14 +149,20 @@ function hide(el){ el.classList.add('hidden'); }
 startBtn.onclick = () => {
   player = document.getElementById('player').value.trim();
   if(!player) return alert('Введите имя!');
-  if(!selectedRegion) return alert('Выберите область, для которой пройдёте квиз.');
-  
+  if(!selectedRegion) return alert('Выберите область.');
+
   const originalQuestions = ORIGINAL_QUESTIONS_BY_REGION[selectedRegion];
   currentSessionQuestions = prepareQuestionsForSession(originalQuestions);
   
-  current = 0; score = 0; startTime = Date.now();
-  hide(startScreen); hide(resultScreen); hide(leadersScreen);
+  current = 0; 
+  score = 0; 
+  startTime = Date.now();
+
+  hide(startScreen); 
+  hide(resultScreen); 
+  hide(leadersScreen);
   show(quizScreen);
+
   renderQuestion();
 };
 
@@ -211,7 +235,11 @@ function startAutoNext(forceSkip=false){
 }
 
 function resetAutoNext(){
-  if(autoNextInterval){ clearInterval(autoNextInterval); autoNextInterval = null; autoNextTimer = null; }
+  if(autoNextInterval){ 
+    clearInterval(autoNextInterval); 
+    autoNextInterval = null; 
+    autoNextTimer = null; 
+  }
   autoNextProgress.style.width = '0%';
 }
 
@@ -250,7 +278,9 @@ function finishQuiz(){
 }
 
 playAgainBtn.onclick = () => {
-  hide(resultScreen); hide(leadersScreen); show(startScreen);
+  hide(resultScreen); 
+  hide(leadersScreen); 
+  show(startScreen);
   document.querySelectorAll('.area-card').forEach(el => el.classList.remove('active'));
   selectedRegion = null;
   regionLabel.textContent = '';
@@ -260,7 +290,7 @@ playAgainBtn.onclick = () => {
 
 async function autoSaveScore(timeSeconds){
   try{
-    // Ищем существующий результат для этого игрока и региона
+    // Ищем существующий результат
     const { data: existingResults, error: checkError } = await supabase
       .from('leaderboard')
       .select('*')
@@ -276,29 +306,25 @@ async function autoSaveScore(timeSeconds){
       isNewRecord = false;
       const existingResult = existingResults[0];
       
-      // Сохраняем только если новый результат ЛУЧШЕ
+      // Если результат лучше — обновляем
       if(score > existingResult.score || 
          (score === existingResult.score && timeSeconds < existingResult.time_seconds)) {
         
-        // УДАЛЯЕМ старый результат и сохраняем новый
-        const { error: deleteError } = await supabase
+        await supabase
           .from('leaderboard')
           .delete()
           .eq('name', player)
           .eq('region', selectedRegion);
 
-        if(deleteError) throw deleteError;
-        
-        savingTextEl.textContent = "✅ Новый рекорд! Результат обновлен!";
+        savingTextEl.textContent = "✅ Новый рекорд!";
       } else {
         shouldSave = false;
-        savingTextEl.textContent = "Ваш результат не улучшил предыдущее достижение";
+        savingTextEl.textContent = "Ваш результат не лучше прежнего";
       }
     }
 
-    // Сохраняем новый результат
     if(shouldSave) {
-      const { data, error } = await supabase
+      await supabase
         .from('leaderboard')
         .insert([
           {
@@ -307,14 +333,12 @@ async function autoSaveScore(timeSeconds){
             total_questions: currentSessionQuestions.length,
             time_seconds: timeSeconds,
             region: selectedRegion,
+            ip: USER_IP, // ✅ ДОБАВЛЕНО
             created_at: new Date().toISOString()
           }
         ]);
-      if(error) throw error;
       
-      if(isNewRecord) {
-        savingTextEl.textContent = "✅ Результат сохранен в лидерборд!";
-      }
+      if(isNewRecord) savingTextEl.textContent = "✅ Результат сохранён!";
     }
 
   }catch(err){
@@ -363,18 +387,22 @@ async function getLeadersForRegion(region){
 
 async function showLeaders(){
   if(!selectedRegion){
-    alert('Сначала выберите область на стартовом экране, чтобы посмотреть лидеров конкретной области.');
+    alert('Выберите область на главном экране');
     return;
   }
   hide(startScreen); hide(quizScreen); hide(resultScreen);
   show(leadersScreen);
+  
   leadersRegionName.textContent = selectedRegion;
   leadersBody.innerHTML = '<tr><td colspan="4">Загрузка...</td></tr>';
+
   const arr = await getLeadersForRegion(selectedRegion);
+
   if(!arr.length){
     leadersBody.innerHTML = '<tr><td colspan="4">Нет данных</td></tr>';
     return;
   }
+
   leadersBody.innerHTML = '';
   arr.forEach((row, i) => {
     const tr = document.createElement('tr');
@@ -389,7 +417,14 @@ viewLeadersBtn2.onclick = showLeaders;
 backHomeBtn.onclick = () => { hide(leadersScreen); show(startScreen); };
 refreshLeadersBtn.onclick = showLeaders;
 
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c])); }
+function escapeHtml(s){ 
+  return String(s).replace(/[&<>"']/g, c=> ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":"&#39;"}[c]));
+}
 
 document.addEventListener('keydown', (e)=>{
   if(e.key === 'Escape'){
