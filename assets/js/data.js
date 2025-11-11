@@ -7,7 +7,7 @@ const areaData = {
                 id: 1,
                 name: "Александр Захарченко",
                 role: "Первый глава ДНР",
-                image: "assets/img/heroes/dnr1.jpg",
+                image: "https://avatars.mds.yandex.net/i?id=720ede8c7b54f4acdb1eeee88337798e_l-4575945-images-thumbs&n=13",
                 description: "Первый руководитель ДНР, сыгравший ключевую роль в становлении республики.",
                 fullInfo: "Заложил основы государственности, создал органы власти и силовые структуры. Погиб 31 августа 2018 года."
             },
@@ -15,7 +15,7 @@ const areaData = {
                 id: 2,
                 name: "Михаил Толстых (Гиви)",
                 role: "Командир ополчения",
-                image: "assets/img/heroes/dnr2.jpg",
+                image: "https://stihi.ru/pics/2019/12/04/9662.jpg",
                 description: "Командир батальона «Сомали», известный своими боевыми заслугами.",
                 fullInfo: "Прославился мужеством в боях за Донецк, стал символом сопротивления."
             },
@@ -23,7 +23,7 @@ const areaData = {
                 id: 3,
                 name: "Арсений Павлов (Моторола)",
                 role: "Командир подразделения",
-                image: "assets/img/heroes/dnr3.jpg",
+                image: "https://avatars.mds.yandex.net/i?id=d45c9767450ebee949270246500a12f4_l-5219031-images-thumbs&n=13",
                 description: "Один из самых известных командиров ДНР.",
                 fullInfo: "Командир подразделения, участвовал в ключевых операциях обороны Донбасса."
             },
@@ -145,3 +145,4 @@ const areaNames = [
     "Харьковская область", 
     "Закарпатская область"
 ];
+
