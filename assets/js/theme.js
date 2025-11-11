@@ -2,7 +2,7 @@
 class ThemeManager {
     constructor() {
         this.themeToggle = document.getElementById('themeToggle');
-        this.themeIcon = this.themeToggle.querySelector('i'); // Получаем иконку внутри кнопки
+        this.themeIcon = this.themeToggle.querySelector('i');
         this.currentTheme = localStorage.getItem('theme') || 'light';
         
         this.init();
@@ -23,8 +23,49 @@ class ThemeManager {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
         this.currentTheme = theme;
+        this.updateCSSVariables(theme);
         this.updateIcon();
         this.updateScrollbar();
+        
+        // Добавляем класс для плавного перехода
+        document.body.classList.add('theme-transition');
+        setTimeout(() => {
+            document.body.classList.remove('theme-transition');
+        }, 300);
+    }
+    
+    updateCSSVariables(theme) {
+        const root = document.documentElement;
+        
+        if (theme === 'dark') {
+            // Тёмная тема
+            root.style.setProperty('--primary-color', '#1e293b');
+            root.style.setProperty('--secondary-color', '#334155');
+            root.style.setProperty('--background-color', '#0f172a');
+            root.style.setProperty('--text-color', '#f8fafc');
+            root.style.setProperty('--text-secondary', '#cbd5e1');
+            root.style.setProperty('--accent-color', '#3b82f6');
+            root.style.setProperty('--accent-hover', '#60a5fa');
+            root.style.setProperty('--border-color', '#334155');
+            root.style.setProperty('--card-bg', '#1e293b');
+            root.style.setProperty('--header-bg', 'rgba(15, 23, 42, 0.95)');
+            root.style.setProperty('--footer-bg', '#0f172a');
+            root.style.setProperty('--shadow', '0 4px 6px -1px rgba(0, 0, 0, 0.3)');
+        } else {
+            // Светлая тема
+            root.style.setProperty('--primary-color', '#ffffff');
+            root.style.setProperty('--secondary-color', '#f8fafc');
+            root.style.setProperty('--background-color', '#f1f5f9');
+            root.style.setProperty('--text-color', '#1e293b');
+            root.style.setProperty('--text-secondary', '#64748b');
+            root.style.setProperty('--accent-color', '#2563eb');
+            root.style.setProperty('--accent-hover', '#1d4ed8');
+            root.style.setProperty('--border-color', '#e2e8f0');
+            root.style.setProperty('--card-bg', '#ffffff');
+            root.style.setProperty('--header-bg', 'rgba(255, 255, 255, 0.95)');
+            root.style.setProperty('--footer-bg', '#ffffff');
+            root.style.setProperty('--shadow', '0 4px 6px -1px rgba(0, 0, 0, 0.1)');
+        }
     }
     
     toggleTheme() {
