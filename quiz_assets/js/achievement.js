@@ -1,24 +1,24 @@
-// === СИСТЕМА ДОСТИЖЕНИЙ === //
+// === СИСТЕМА ДОСТИЖЕНИЙ ===
 class AchievementSystem {
     constructor() {
         console.log('✅ AchievementSystem constructor called!');
         this.achievements = {
-            'quiz1': { image: '/quiz_assets/img/1quiz.png', earned: false },
-            'quiz3': { image: '/quiz_assets/img/3quiz.png', earned: false },
-            'quiz5': { image: '/quiz_assets/img/5quiz.png', earned: false },
-            'dnr': { image: '/quiz_assets/img/dnr.png', earned: false },
-            'lnr': { image: '/quiz_assets/img/lnr.png', earned: false },
-            'zaporoj': { image: '/quiz_assets/img/zaporoj.png', earned: false },
-            'herson': { image: '/quiz_assets/img/herson.png', earned: false },
-            'krim': { image: '/quiz_assets/img/krim.png', earned: false },
-            '100score': { image: '/quiz_assets/img/100score.png', earned: false },
-            '0score': { image: '/quiz_assets/img/0score.png', earned: false },
-            '1place': { image: '/quiz_assets/img/1place.png', earned: false },
-            '2place': { image: '/quiz_assets/img/2place.png', earned: false },
-            '3place': { image: '/quiz_assets/img/3place.png', earned: false },
-            '1_3place': { image: '/quiz_assets/img/1_3place.png', earned: false },
-            '1minute': { image: '/quiz_assets/img/1minutes.png', earned: false },
-            '30second': { image: '/quiz_assets/img/30seconds.png', earned: false }
+            'quiz1': { image: 'https://nalojka.github.io/quiz_assets/img/1quiz.png', earned: false },
+            'quiz3': { image: 'https://nalojka.github.io/quiz_assets/img/3quiz.png', earned: false },
+            'quiz5': { image: 'https://nalojka.github.io/quiz_assets/img/5quiz.png', earned: false },
+            'dnr': { image: 'https://nalojka.github.io/quiz_assets/img/dnr.png', earned: false },
+            'lnr': { image: 'https://nalojka.github.io/quiz_assets/img/lnr.png', earned: false },
+            'zaporoj': { image: 'https://nalojka.github.io/quiz_assets/img/zaporoj.png', earned: false },
+            'herson': { image: 'https://nalojka.github.io/quiz_assets/img/herson.png', earned: false },
+            'krim': { image: 'https://nalojka.github.io/quiz_assets/img/krim.png', earned: false },
+            '100score': { image: 'https://nalojka.github.io/quiz_assets/img/100score.png', earned: false },
+            '0score': { image: 'https://nalojka.github.io/quiz_assets/img/0score.png', earned: false },
+            '1place': { image: 'https://nalojka.github.io/quiz_assets/img/1place.png', earned: false },
+            '2place': { image: 'https://nalojka.github.io/quiz_assets/img/2place.png', earned: false },
+            '3place': { image: 'https://nalojka.github.io/quiz_assets/img/3place.png', earned: false },
+            '1_3place': { image: 'https://nalojka.github.io/quiz_assets/img/1_3place.png', earned: false },
+            '1minute': { image: 'https://nalojka.github.io/quiz_assets/img/1minutes.png', earned: false },
+            '30second': { image: 'https://nalojka.github.io/quiz_assets/img/30seconds.png', earned: false }
         };
         
         this.quizCount = 0;
@@ -101,12 +101,11 @@ class AchievementSystem {
                     canvas.height = 80;
                     const ctx = canvas.getContext('2d');
                     
-                    // Разные цвета для разных типов достижений
-                    let color = '#4CAF50'; // Зеленый по умолчанию
-                    if (id.includes('place')) color = '#FFD700'; // Золотой для мест
-                    if (id.includes('score')) color = '#2196F3'; // Синий для баллов
-                    if (id.includes('quiz')) color = '#9C27B0'; // Фиолетовый для квизов
-                    if (id.includes('minute') || id.includes('second')) color = '#FF5722'; // Оранжевый для времени
+                    let color = '#4CAF50';
+                    if (id.includes('place')) color = '#FFD700';
+                    if (id.includes('score')) color = '#2196F3';
+                    if (id.includes('quiz')) color = '#9C27B0';
+                    if (id.includes('minute') || id.includes('second')) color = '#FF5722';
                     
                     ctx.fillStyle = color;
                     ctx.fillRect(0, 0, 80, 80);
@@ -225,7 +224,7 @@ class AchievementSystem {
                 background-color: #ffffff;
             `;
         } else {
-            // Fallback БЕЗ ТЕКСТА - просто цветной квадрат
+            // Fallback БЕЗ ТЕКСТА
             let color = '#4CAF50';
             if (achievementId.includes('place')) color = '#FFD700';
             if (achievementId.includes('score')) color = '#2196F3';
