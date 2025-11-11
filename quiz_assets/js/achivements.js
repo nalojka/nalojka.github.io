@@ -106,7 +106,7 @@ class AchievementSystem {
         achievementElement.style.cssText = `
             width: 80px;
             height: 80px;
-            background-image: url('assets/quiz/images/${achievement.image}');
+            background-image: url('quiz_assets/img/${achievement.image}');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
