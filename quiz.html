@@ -96,5 +96,25 @@
   <script src="quiz_assets/js/questions.js"></script>
   <script src="quiz_assets/js/achievement.js"></script>
   <script src="quiz_assets/js/main.js"></script>
+<script>
+async function getUserIP() {
+  try {
+    const res = await fetch("https://api.ipify.org?format=json");
+    const data = await res.json();
+    return data.ip;
+  } catch (e) {
+    console.error("Ошибка получения IP:", e);
+    return "не определён";
+  }
+}
+
+// записываем IP в глобальную переменную
+let USER_IP = "";
+
+getUserIP().then(ip => {
+  USER_IP = ip;
+  console.log("IP пользователя:", USER_IP);
+});
+</script>
 </body>
 </html>
