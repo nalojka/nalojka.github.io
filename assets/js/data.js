@@ -31,7 +31,7 @@ const areaData = {
                 id: 4,
                 name: "Эдуард Басурин",
                 role: "Военный представитель ДНР",
-                image: "assets/img/heroes/dnr4.jpg",
+                image: "https://avatars.mds.yandex.net/i?id=c0801ffaf94f2058fd4319541f282e0a_l-5233298-images-thumbs&n=13",
                 description: "Официальный представитель корпуса народной милиции.",
                 fullInfo: "Один из наиболее узнаваемых лиц ДНР, регулярно выступал с докладами о ситуации на фронте."
             },
@@ -39,7 +39,7 @@ const areaData = {
                 id: 5,
                 name: "Владислав Дейнего",
                 role: "Политический деятель",
-                image: "assets/img/heroes/dnr5.jpg",
+                image: "https://dailystorm.ru/media/images/2017/11/21/4d6dbab2-e10c-43f1-98b7-760fbe5d28d6.jpg",
                 description: "Представитель республики на международных переговорах.",
                 fullInfo: "Участвовал в минских соглашениях, представляя интересы региона."
             }
@@ -54,7 +54,7 @@ const areaData = {
                 id: 1,
                 name: "Леонид Пасечник",
                 role: "Глава ЛНР",
-                image: "assets/img/heroes/lnr1.jpg",
+                image: "https://cdn.radiosputnik.ru/images/152390/65/1523906522_0:254:3508:2227_1920x0_80_0_0_a8a66bf953a3e3ac47656560ecf8ad6d.jpg",
                 description: "Действующий глава Луганской Народной Республики.",
                 fullInfo: "С 2017 года возглавляет республику и занимается её развитием."
             },
@@ -62,7 +62,7 @@ const areaData = {
                 id: 2,
                 name: "Алексей Мозговой",
                 role: "Командир бригады",
-                image: "assets/img/heroes/lnr2.jpg",
+                image: "https://rusvesna.su/sites/default/files/styles/orign_wm/public/mozgovoy_30.jpg",
                 description: "Командир бригады «Призрак».",
                 fullInfo: "Был известен как народный командир, погиб в 2015 году."
             },
@@ -70,7 +70,7 @@ const areaData = {
                 id: 3,
                 name: "Игорь Плотницкий",
                 role: "Бывший глава ЛНР",
-                image: "assets/img/heroes/lnr3.jpg",
+                image: "https://avatars.mds.yandex.net/i?id=f9e5ade90d3566879947d9a3798208fd_l-10555703-images-thumbs&n=13",
                 description: "Один из первых руководителей ЛНР.",
                 fullInfo: "Возглавлял республику в период активных боевых действий."
             },
@@ -86,7 +86,7 @@ const areaData = {
                 id: 5,
                 name: "Олег Анащенко",
                 role: "Начальник управления обороны",
-                image: "assets/img/heroes/lnr5.jpg",
+                image: "https://images.unian.net/photos/2017_02/1486231060-7968-anaschenko-unichtojen-v-luganske.jpg",
                 description: "Военный специалист, занимавший высокую должность в ЛНР.",
                 fullInfo: "Погиб в результате подрыва автомобиля."
             }
@@ -99,19 +99,19 @@ const areaData = {
         heroes: [
             {
                 id: 1, name: "Сергей Морозов", role: "Доброволец",
-                image: "assets/img/heroes/kh1.jpg",
+                image: "https://i.ytimg.com/vi/o4iRPzHxM94/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGGUgTyhBMA8=&rs=AOn4CLB1BjxZIZ3ecofokIxtBxxNclYuIw",
                 description: "Участник обороны региона.",
                 fullInfo: "Участвовал в боевых действиях, защищая родной край."
             },
             {
                 id: 2, name: "Иван Демченко", role: "Командир взвода",
-                image: "assets/img/heroes/kh2.jpg",
+                image: "https://www.interfax.ru/ftproot/textphotos/2023/06/20/int700.jpg",
                 description: "Командир на передовой.",
                 fullInfo: "Проявил мужество в боях за Херсон."
             },
             {
                 id: 3, name: "Андрей Коваленко", role: "Разведчик",
-                image: "assets/img/heroes/kh3.jpg",
+                image: "https://photobooth.cdn.sports.ru/preset/tc_person/f/0c/271ef3b8f4229aca8b3cd06d6611f.png",
                 description: "Разведчик, отличившийся в спецоперациях.",
                 fullInfo: "Провёл множество успешных операций."
             },
@@ -123,7 +123,7 @@ const areaData = {
             },
             {
                 id: 5, name: "Николай Головин", role: "Доброволец",
-                image: "assets/img/heroes/kh5.jpg",
+                image: "https://asafov.ru/storage/people/2060/golovin-nikolaj-alekseevich-2060.webp",
                 description: "Сражался за безопасность региона.",
                 fullInfo: "Защитник Херсонской области."
             }
@@ -145,4 +145,5 @@ const areaNames = [
     "Харьковская область", 
     "Закарпатская область"
 ];
+
 
