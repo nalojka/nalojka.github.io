@@ -52,16 +52,54 @@ function scrollToSection(sectionId) {
 // Переключение темы
 function toggleTheme() {
     const body = document.body;
-    const themeIcon = document.querySelector('.theme-icon');
-    
-    body.classList.toggle('dark-theme');
+    const themeToggle = document.getElementById('themeToggle');
+    const icon = themeToggle.querySelector('i');
     
     if (body.classList.contains('dark-theme')) {
-        themeIcon.textContent = '☀️';
+        // Переключаем на светлую тему
+        body.classList.remove('dark-theme');
+        body.classList.add('light-theme');
+        localStorage.setItem('theme', 'light');
+        
+        // Меняем иконку на солнце
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
     } else {
-        themeIcon.textContent = '🌙';
+        // Переключаем на темную тему
+        body.classList.remove('light-theme');
+        body.classList.add('dark-theme');
+        localStorage.setItem('theme', 'dark');
+        
+        // Меняем иконку на луну
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
     }
 }
+
+// Функция для установки начальной темы
+function setInitialTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    const themeToggle = document.getElementById('themeToggle');
+    const icon = themeToggle.querySelector('i');
+    
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+    } else {
+        document.body.classList.add('light-theme');
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+    }
+}
+
+// Инициализация темы при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    setInitialTheme();
+    
+    // Обработчик клика по кнопке переключения темы
+    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+});
 
 // Обработка формы
 function handleFormSubmit(e) {
@@ -167,4 +205,5 @@ function handleScroll() {
 
 window.addEventListener('scroll', handleScroll);
 // Запустить при загрузке, если секция уже в viewport
+
 handleScroll();
