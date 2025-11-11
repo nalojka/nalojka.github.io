@@ -1,16 +1,6 @@
-/* Адаптивность для карты */
-.map_container {
-    position: relative;
-    width: 100%;
-    margin: 0 auto;
-    overflow: hidden;
-}
-
 .map_body {
     position: relative;
     width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
     transition: var(--transition);
     background: white;
     border-radius: var(--border-radius);
@@ -24,31 +14,17 @@
     border-color: var(--border-color);
 }
 
-/* Базовое изображение карты */
-#map_border {
-    width: 100%;
-    height: auto;
-    display: block;
-    position: relative;
-    z-index: 1;
-}
-
-/* Контейнер для областей карты */
-.map_body {
-    position: relative;
+.map_body.blurred {
+    filter: blur(10px);
+    transform: scale(0.95);
+    pointer-events: none;
 }
 
 .map-area {
     position: absolute;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 2;
-}
-
-.map-area img {
-    width: 100%;
-    height: auto;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
 }
 
 .map-area:hover img {
@@ -72,7 +48,7 @@
 
 .area-name {
     position: absolute;
-    background: var(--card-bg);
+    background: white;
     color: var(--text-dark);
     padding: 10px 18px;
     border-radius: 10px;
@@ -86,7 +62,6 @@
     box-shadow: var(--shadow);
     font-weight: 500;
     border: 1px solid var(--border-color);
-    font-family: 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 [data-theme="dark"] .area-name {
@@ -105,7 +80,7 @@
     height: 0;
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
-    border-top: 6px solid var(--card-bg);
+    border-top: 6px solid white;
 }
 
 [data-theme="dark"] .area-name::after {
@@ -117,17 +92,17 @@
     transform: translate(-50%, -120%);
 }
 
-/* Базовые позиции для десктопной версии */
-#area_1 { left: 51.5%; top: 30px; width: 8%; } 
-#area_2 { left: 74.5%; top: 70px; width: 7%; }
-#area_3 { left: 66.2%; top: 180px; width: 9%; }
-#area_4 { left: 39.2%; top: 208px; width: 12%; }
-#area_5 { left: 49.1%; top: 341px; width: 11%; }
-#area_6 { left: 28.4%; top: 425px; width: 15%; }
-#area_7 { left: 51.2%; top: 600px; width: 10%; }
-#area_8 { left: 18%; top: 343px; width: 8%; }
-#area_9 { left: 8%; top: 345px; width: 6%; }
-#area_10 { left: 3%; top: 560px; width: 10%; }
+/* Позиции областей остаются без изменений */
+#area_1 { left: 51.5%; top: 30px; } 
+#area_2 { left: 74.5%; top: 70px; }
+#area_3 { left: 66.2%; top: 180px; }
+#area_4 { left: 39.2%; top: 208px; }
+#area_5 { left: 49.1%; top: 341px;  }
+#area_6 { left: 28.4%; top: 425px; }
+#area_7 { left: 51.2%; top: 600px; }
+#area_8 { left: 18%; top: 343px; }
+#area_9 { left: 8%; top: 345px; }
+#area_10 { left: 3%; top: 560px; }
 
 #name_1 { left: 61.2%; top: 102px; }
 #name_2 { left: 80.1%; top: 140px; }
@@ -140,213 +115,52 @@
 #name_9 { left: 24.9%; top: 412px; }
 #name_10 { left: 22.7%; top: 630px; }
 
-/* Планшеты (768px - 1024px) */
-@media (max-width: 1024px) {
-    .map_body {
-        padding: 1.5rem;
-    }
-    
-    .area-name {
-        font-size: 12px;
-        padding: 8px 14px;
-    }
-    
-    /* Немного корректируем позиции для планшетов */
-    #area_1 { left: 52%; top: 25px; width: 9%; }
-    #area_2 { left: 75%; top: 65px; width: 8%; }
-    #area_3 { left: 66.5%; top: 175px; width: 10%; }
-    #area_4 { left: 39.5%; top: 203px; width: 13%; }
-    #area_5 { left: 49.3%; top: 336px; width: 12%; }
-    #area_6 { left: 28.6%; top: 420px; width: 16%; }
-    #area_7 { left: 51.4%; top: 595px; width: 11%; }
-    #area_8 { left: 18.2%; top: 338px; width: 9%; }
-    #area_9 { left: 8.2%; top: 340px; width: 7%; }
-    #area_10 { left: 3.2%; top: 555px; width: 11%; }
-    
-    #name_1 { left: 61.5%; top: 98px; }
-    #name_2 { left: 80.3%; top: 135px; }
-    #name_3 { left: 73.5%; top: 245px; }
-    #name_4 { left: 56%; top: 273px; }
-    #name_5 { left: 60.3%; top: 404px; }
-    #name_6 { left: 51%; top: 486px; }
-    #name_7 { left: 57%; top: 663px; }
-    #name_8 { left: 33.3%; top: 405px; }
-    #name_9 { left: 25.1%; top: 407px; }
-    #name_10 { left: 22.9%; top: 625px; }
-}
-
-/* Мобильные устройства (480px - 768px) */
-@media (max-width: 768px) {
-    .map_body {
-        padding: 1rem;
-        border-radius: 16px;
-    }
-    
-    .area-name {
-        font-size: 10px;
-        padding: 6px 10px;
-        border-radius: 6px;
-    }
-    
-    .area-name::after {
-        border-left: 4px solid transparent;
-        border-right: 4px solid transparent;
-        border-top: 4px solid var(--card-bg);
-        bottom: -4px;
-    }
-    
-    /* Значительно корректируем позиции для мобильных */
-    #area_1 { left: 53%; top: 20px; width: 10%; }
-    #area_2 { left: 76%; top: 55px; width: 9%; }
-    #area_3 { left: 67%; top: 165px; width: 11%; }
-    #area_4 { left: 40%; top: 190px; width: 14%; }
-    #area_5 { left: 50%; top: 325px; width: 13%; }
-    #area_6 { left: 29%; top: 405px; width: 17%; }
-    #area_7 { left: 52%; top: 580px; width: 12%; }
-    #area_8 { left: 19%; top: 325px; width: 10%; }
-    #area_9 { left: 9%; top: 327px; width: 8%; }
-    #area_10 { left: 4%; top: 540px; width: 12%; }
-    
-    #name_1 { left: 62%; top: 90px; }
-    #name_2 { left: 81%; top: 125px; }
-    #name_3 { left: 74%; top: 235px; }
-    #name_4 { left: 56.5%; top: 260px; }
-    #name_5 { left: 60.8%; top: 390px; }
-    #name_6 { left: 51.5%; top: 470px; }
-    #name_7 { left: 57.5%; top: 650px; }
-    #name_8 { left: 34%; top: 390px; }
-    #name_9 { left: 25.5%; top: 392px; }
-    #name_10 { left: 23.5%; top: 610px; }
-}
-
-/* Маленькие мобильные устройства (до 480px) */
-@media (max-width: 480px) {
-    .map_body {
-        padding: 0.5rem;
-        border-radius: 12px;
-    }
-    
-    .area-name {
-        font-size: 8px;
-        padding: 4px 8px;
-        border-radius: 4px;
-        display: none; /* Скрываем названия на очень маленьких экранах */
-    }
-    
-    .map-area:hover + .area-name {
-        display: block; /* Показываем только при наведении */
-    }
-    
-    /* Максимально адаптивные позиции */
-    #area_1 { left: 54%; top: 15px; width: 11%; }
-    #area_2 { left: 77%; top: 45px; width: 10%; }
-    #area_3 { left: 68%; top: 150px; width: 12%; }
-    #area_4 { left: 41%; top: 175px; width: 15%; }
-    #area_5 { left: 51%; top: 310px; width: 14%; }
-    #area_6 { left: 30%; top: 385px; width: 18%; }
-    #area_7 { left: 53%; top: 560px; width: 13%; }
-    #area_8 { left: 20%; top: 310px; width: 11%; }
-    #area_9 { left: 10%; top: 312px; width: 9%; }
-    #area_10 { left: 5%; top: 520px; width: 13%; }
-    
-    /* На очень маленьких экранах скрываем названия по умолчанию */
-    #name_1, #name_2, #name_3, #name_4, #name_5,
-    #name_6, #name_7, #name_8, #name_9, #name_10 {
-        display: none;
-    }
-}
-
-/* Ландшафтная ориентация на мобильных */
-@media (max-width: 768px) and (orientation: landscape) {
-    .map_body {
-        padding: 0.75rem;
-    }
-    
-    .area-name {
-        font-size: 9px;
-        padding: 5px 9px;
-    }
-    
-    /* Специальные настройки для ландшафтного режима */
-    #area_1 { top: 10px; }
-    #area_2 { top: 40px; }
-    #area_3 { top: 140px; }
-    #area_4 { top: 160px; }
-    #area_5 { top: 290px; }
-    #area_6 { top: 370px; }
-    #area_7 { top: 540px; }
-    #area_8 { top: 290px; }
-    #area_9 { top: 292px; }
-    #area_10 { top: 500px; }
-}
-
-/* Высокопиксельные дисплеи */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    .map-area img {
-        image-rendering: -webkit-optimize-contrast;
-        image-rendering: crisp-edges;
-    }
-}
-
-/* Поддержка касаний на мобильных устройствах */
-@media (hover: none) and (pointer: coarse) {
-    .map-area:hover img {
-        transform: none;
-        filter: none;
-    }
-    
-    .map-area:active img {
-        filter: 
-            drop-shadow(2px 2px 0px rgba(0, 0, 0, 0.1))
-            drop-shadow(-2px -2px 0px rgba(0, 0, 0, 0.1))
-            brightness(1.1);
-        transform: scale(1.05);
-    }
-    
-    .map-area:active + .area-name {
-        opacity: 1;
-        transform: translate(-50%, -120%);
-    }
-}
-
-/* Улучшенная доступность для карты */
-.map-area:focus {
-    outline: 3px solid var(--accent-color);
-    outline-offset: 2px;
-    border-radius: 4px;
-}
-
-.map-area:focus img {
+.map-area:hover img {
     filter: 
-        drop-shadow(2px 2px 0px rgba(0, 0, 0, 0.2))
-        drop-shadow(-2px -2px 0px rgba(0, 0, 0, 0.2))
-        brightness(1.2);
-    transform: scale(1.1);
+        drop-shadow(2px 2px 0px rgba(0, 0, 0, 0.1))
+        drop-shadow(-2px -2px 0px rgba(0, 0, 0, 0.1))
+        drop-shadow(2px -2px 0px rgba(0, 0, 0, 0.1))
+        drop-shadow(-2px 2px 0px rgba(0, 0, 0, 0.1))
+        brightness(1.1);
+    transform: scale(1.05);
 }
 
-/* Дополнительные стили для разных типов устройств */
-.touch-device .map-area {
-    cursor: default;
+[data-theme="dark"] .map-area:hover img {
+    filter: 
+        drop-shadow(2px 2px 0px rgba(96, 165, 250, 0.2))
+        drop-shadow(-2px -2px 0px rgba(96, 165, 250, 0.2))
+        drop-shadow(2px -2px 0px rgba(96, 165, 250, 0.2))
+        drop-shadow(-2px 2px 0px rgba(96, 165, 250, 0.2))
+        brightness(1.3);
 }
 
-.touch-device .map-area:active {
-    transform: scale(0.95);
+.area-name {
+    position: absolute;
+    background: var(--card-bg);
+    color: var(--text-dark);
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 20;
+    transform: translate(-50%, -100%);
+    box-shadow: var(--shadow);
+    font-weight: 500;
+    border: 1px solid var(--border-color);
 }
 
-.mobile-small .map-area {
-    min-width: 20px;
-    min-height: 20px;
-}
-
-/* Улучшение читаемости на маленьких экранах */
-@media (max-width: 480px) {
-    .map-section .section-subtitle {
-        font-size: 0.9rem;
-        padding: 0 1rem;
-    }
-}
-
-/* Оптимизация для медленных соединений */
-.map-area img {
-    loading: lazy;
+.area-name::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid var(--card-bg);
 }
