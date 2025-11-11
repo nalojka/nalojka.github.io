@@ -1,7 +1,7 @@
-// quiz_assets/js/achievement.js
+// === СИСТЕМА ДОСТИЖЕНИЙ ===
 class AchievementSystem {
     constructor() {
-        console.log('AchievementSystem loaded!'); // Добавьте для отладки
+        console.log('✅ AchievementSystem constructor called!');
         this.achievements = {
             'quiz1': { image: 'quiz_assets/img/quiz1.png', earned: false },
             'quiz3': { image: 'quiz_assets/img/quiz3.png', earned: false },
@@ -14,6 +14,8 @@ class AchievementSystem {
             '100score': { image: 'quiz_assets/img/100score.png', earned: false },
             '0score': { image: 'quiz_assets/img/0score.png', earned: false },
             '1place': { image: 'quiz_assets/img/1place.png', earned: false },
+            '2place': { image: 'quiz_assets/img/2place.png', earned: false },
+            '3place': { image: 'quiz_assets/img/3place.png', earned: false },
             '1_3place': { image: 'quiz_assets/img/1_3place.png', earned: false },
             '1minute': { image: 'quiz_assets/img/1minute.png', earned: false },
             '30second': { image: 'quiz_assets/img/30second.png', earned: false }
@@ -23,11 +25,10 @@ class AchievementSystem {
         this.completedRegions = new Set();
         this.achievementQueue = [];
         this.isShowingAchievement = false;
-        this.init();
     }
 
     async init() {
-        console.log('Initializing achievements...');
+        console.log('✅ AchievementSystem init called!');
         await this.loadAchievements();
         this.setupAchievementsContainer();
     }
@@ -65,18 +66,101 @@ class AchievementSystem {
                 left: 20px;
                 z-index: 10000;
                 pointer-events: none;
+                max-height: calc(100vh - 40px);
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
             `;
             document.body.appendChild(container);
-            console.log('Achievements container created');
+            console.log('✅ Achievements container created!');
+            
+            this.addResponsiveStyles();
         }
     }
 
+    addResponsiveStyles() {
+        const style = document.createElement('style');
+        style.textContent = `
+            #achievements-container {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 10000;
+                pointer-events: none;
+                max-height: calc(100vh - 40px);
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .achievement {
+                width: 80px;
+                height: 80px;
+                transform: translateX(-100px);
+                opacity: 0;
+                transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                border-radius: 12px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                text-align: center;
+                font-weight: bold;
+                flex-shrink: 0;
+            }
+            
+            /* Адаптивность */
+            @media (max-width: 768px) {
+                .achievement {
+                    width: 60px;
+                    height: 60px;
+                    font-size: 10px;
+                }
+                
+                #achievements-container {
+                    left: 10px;
+                    top: 10px;
+                    gap: 8px;
+                }
+            }
+            
+            @media (max-width: 480px) {
+                .achievement {
+                    width: 50px;
+                    height: 50px;
+                    font-size: 8px;
+                }
+                
+                #achievements-container {
+                    left: 5px;
+                    top: 5px;
+                    gap: 5px;
+                }
+            }
+            
+            @media (min-width: 1200px) {
+                .achievement {
+                    width: 90px;
+                    height: 90px;
+                    font-size: 14px;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
     unlockAchievement(achievementId) {
+        console.log('🔓 Unlocking achievement:', achievementId);
         if (!this.achievements[achievementId] || this.achievements[achievementId].earned) {
             return false;
         }
 
-        console.log('Unlocking achievement:', achievementId);
         this.achievements[achievementId].earned = true;
         this.addToQueue(achievementId);
         this.saveAchievements();
@@ -98,34 +182,25 @@ class AchievementSystem {
     }
 
     showAchievement(achievementId) {
+        console.log('🎯 Showing achievement:', achievementId);
         this.isShowingAchievement = true;
         const achievement = this.achievements[achievementId];
         const container = document.getElementById('achievements-container');
         
         const achievementElement = document.createElement('div');
         achievementElement.className = 'achievement';
-        achievementElement.style.cssText = `
-            width: 80px;
-            height: 80px;
-            background-image: url('${achievement.image}'); // Убрал путь, т.к. он уже в achievement.image
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            transform: translateX(-100px);
-            opacity: 0;
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            margin-bottom: 10px;
-        `;
-    
+        achievementElement.style.backgroundImage = `url('${achievement.image}')`;
+        
         container.appendChild(achievementElement);
-    
+
+        // Автопрокрутка к новому достижению
+        container.scrollTop = container.scrollHeight;
+
         requestAnimationFrame(() => {
             achievementElement.style.transform = 'translateX(0)';
             achievementElement.style.opacity = '1';
         });
-    
+
         setTimeout(() => {
             achievementElement.style.transform = 'translateX(-100px)';
             achievementElement.style.opacity = '0';
@@ -141,8 +216,7 @@ class AchievementSystem {
     }
 
     async onQuizComplete(score, timeSeconds, region, playerName) {
-        console.log('Quiz completed:', { score, timeSeconds, region, playerName });
-        
+        console.log('📝 Quiz completed - checking achievements');
         this.quizCount++;
         this.completedRegions.add(region);
         
@@ -173,7 +247,7 @@ class AchievementSystem {
         }
         
         // Достижения за баллы
-        const totalPoints = 100; // Максимальный балл
+        const totalPoints = currentSessionQuestions.length * POINTS;
         if (score === totalPoints && !this.achievements['100score'].earned) {
             achievementsToUnlock.push('100score');
         }
@@ -189,9 +263,13 @@ class AchievementSystem {
             achievementsToUnlock.push('30second');
         }
         
-        console.log('Achievements to unlock:', achievementsToUnlock);
+        // Достижения за места в лидерборде
+        const leaderboardAchievements = await this.checkLeaderboardAchievements(region, playerName);
+        achievementsToUnlock.push(...leaderboardAchievements);
         
-        // Разблокируем достижения
+        console.log('🏆 Achievements to unlock:', achievementsToUnlock);
+        
+        // Разблокируем достижения с задержкой
         achievementsToUnlock.forEach((achievementId, index) => {
             setTimeout(() => {
                 this.unlockAchievement(achievementId);
@@ -199,6 +277,33 @@ class AchievementSystem {
         });
         
         this.saveAchievements();
+    }
+
+    // Проверка достижений лидерборда
+    async checkLeaderboardAchievements(region, playerName) {
+        const achievements = [];
+        
+        try {
+            const leaders = await getLeadersForRegion(region);
+            const playerPosition = leaders.findIndex(leader => leader.name === playerName) + 1;
+            
+            if (playerPosition === 1 && !this.achievements['1place'].earned) {
+                achievements.push('1place');
+            }
+            if (playerPosition === 2 && !this.achievements['2place'].earned) {
+                achievements.push('2place');
+            }
+            if (playerPosition === 3 && !this.achievements['3place'].earned) {
+                achievements.push('3place');
+            }
+            if (playerPosition >= 1 && playerPosition <= 3 && !this.achievements['1_3place'].earned) {
+                achievements.push('1_3place');
+            }
+        } catch (error) {
+            console.error('Error checking leaderboard achievements:', error);
+        }
+        
+        return achievements;
     }
 
     getQuizCount() {
