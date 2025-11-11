@@ -246,32 +246,32 @@
                     <div class="progress-item">
                         <div class="progress-header">
                             <span class="progress-label">Quiz по истории Новороссии</span>
-                            <span class="progress-value">0%</span>
+                            <span class="progress-value" id="quiz-score">0%</span>
                         </div>
                         <div class="progress-bar">
-                            <div class="progress-fill" data-width="95"></div>
+                            <div class="progress-fill" id="quiz-progress-bar" data-width="0"></div>
                         </div>
                     </div>
                     <div class="progress-item">
                         <div class="progress-header">
                             <span class="progress-label">Место в рейтинге</span>
-                            <span class="progress-value">0</span>
+                            <span class="progress-value" id="quiz-rank">—</span>
                         </div>
                         <div class="progress-bar">
-                            <div class="progress-fill" data-width="0"></div>
+                            <div class="progress-fill" id="rank-progress-bar" data-width="0"></div>
                         </div>
                     </div>
                     <div class="progress-item">
                         <div class="progress-header">
                             <span class="progress-label">Время прохождения</span>
-                            <span class="progress-value">0 сек</span>
+                            <span class="progress-value" id="quiz-time">0 сек</span>
                         </div>
                         <div class="progress-bar">
-                            <div class="progress-fill" data-width="78"></div>
+                            <div class="progress-fill" id="time-progress-bar" data-width="0"></div>
                         </div>
                     </div>
                     <button class="cta-button" style="position: relative; left: 40%;" onclick="goToQuiz()">
-                        <span class="button-text">Пройти Quiz</span>
+                        <span class="button-text" id="quiz-button-text">Пройти Quiz</span>
                     </button>
                 </div>
             </div>
