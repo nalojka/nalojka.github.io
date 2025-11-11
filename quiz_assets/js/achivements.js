@@ -107,7 +107,7 @@ class AchievementSystem {
         achievementElement.style.cssText = `
             width: 80px;
             height: 80px;
-            background-image: url('quiz_assets/img/${achievement.image}');
+            background-image: url('${achievement.image}'); // Убрал путь, т.к. он уже в achievement.image
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
@@ -118,14 +118,14 @@ class AchievementSystem {
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             margin-bottom: 10px;
         `;
-
+    
         container.appendChild(achievementElement);
-
+    
         requestAnimationFrame(() => {
             achievementElement.style.transform = 'translateX(0)';
             achievementElement.style.opacity = '1';
         });
-
+    
         setTimeout(() => {
             achievementElement.style.transform = 'translateX(-100px)';
             achievementElement.style.opacity = '0';
