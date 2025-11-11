@@ -1,6 +1,8 @@
 // Исправленная функция для обновления статистики
-// ИСПРАВЛЕННАЯ функция для обновления статистики
-// ИСПРАВЛЕННАЯ функция для обновления статистики
+function goToQuiz() {
+    window.location.href = 'quiz.html';
+}
+
 async function updateDetailedStats() {
     const results = getQuizResults();
     console.log('📊 Current results for stats:', results);
