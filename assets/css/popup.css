@@ -16,6 +16,10 @@
     padding: 1rem;
 }
 
+[data-theme="dark"] .popup-overlay {
+    background: rgba(15, 23, 42, 0.95);
+}
+
 .popup-overlay.active {
     opacity: 1;
     visibility: visible;
@@ -40,6 +44,10 @@
     border: 1px solid var(--border-color);
 }
 
+[data-theme="dark"] .popup {
+    background: var(--card-bg);
+}
+
 .popup-overlay.active .popup {
     transform: scale(1) translateY(0);
     opacity: 1;
@@ -56,7 +64,7 @@
     position: absolute;
     top: 1.5rem;
     right: 1.5rem;
-    background: white;
+    background: var(--card-bg);
     border: 1px solid var(--border-color);
     font-size: 1.5rem;
     color: var(--text-color);
@@ -77,6 +85,10 @@
     color: white;
     transform: rotate(90deg) scale(1.1);
     box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+}
+
+[data-theme="dark"] .popup-close:hover {
+    box-shadow: 0 5px 15px rgba(96, 165, 250, 0.3);
 }
 
 .popup-title {
@@ -107,6 +119,10 @@
     overflow-y: auto;
     padding: 2.5rem 3rem;
     background: white;
+}
+
+[data-theme="dark"] .popup-content {
+    background: var(--card-bg);
 }
 
 /* Кастомный скроллбар для попапа */
@@ -150,7 +166,7 @@
 
 .hero-card:hover {
     transform: translateY(-8px) scale(1.03);
-    background: white;
+    background: var(--hover-color);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     border-color: var(--accent-color);
 }

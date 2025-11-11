@@ -9,6 +9,11 @@
     border: 1px solid var(--border-color);
 }
 
+[data-theme="dark"] .map_body {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
 .map_body.blurred {
     filter: blur(10px);
     transform: scale(0.95);
@@ -32,6 +37,15 @@
     transform: scale(1.05);
 }
 
+[data-theme="dark"] .map-area:hover img {
+    filter: 
+        drop-shadow(2px 2px 0px rgba(255, 255, 255, 0.1))
+        drop-shadow(-2px -2px 0px rgba(255, 255, 255, 0.1))
+        drop-shadow(2px -2px 0px rgba(255, 255, 255, 0.1))
+        drop-shadow(-2px 2px 0px rgba(255, 255, 255, 0.1))
+        brightness(1.2);
+}
+
 .area-name {
     position: absolute;
     background: white;
@@ -50,6 +64,12 @@
     border: 1px solid var(--border-color);
 }
 
+[data-theme="dark"] .area-name {
+    background: var(--card-bg);
+    color: var(--text-dark);
+    border-color: var(--border-color);
+}
+
 .area-name::after {
     content: '';
     position: absolute;
@@ -61,6 +81,10 @@
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
     border-top: 6px solid white;
+}
+
+[data-theme="dark"] .area-name::after {
+    border-top-color: var(--card-bg);
 }
 
 .map-area:hover + .area-name {
