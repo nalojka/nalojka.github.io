@@ -1,4 +1,4 @@
-// === СИСТЕМА ДОСТИЖЕНИЙ ===
+// === СИСТЕМА ДОСТИЖЕНИЙ === //
 class AchievementSystem {
     constructor() {
         console.log('✅ AchievementSystem constructor called!');
