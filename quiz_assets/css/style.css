@@ -67,7 +67,7 @@ body.dark .theme-toggle .icon {
   color: var(--moon-color);
 }
 .theme-toggle:active{ transform: scale(0.98); }
-
+  
 /* Анимация motion blur при вращении */
 .theme-toggle.rotating .icon {
   animation: rotateWithBlur 0.8s ease-in-out;
