@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель управления</title>
+    <style>
+        :root{
+          --bg-light: #f4f4f9;
+          --bg-dark: #0f1720;
+          --text-light: #111827;
+          --text-dark: #f1f5f9;
+          --card-light: #ffffff;
+          --card-dark: #111318;
+          --accent: #0d6efd;
+          --accent-2: #66a3ff;
+          --muted-light: #6c757d;
+          --muted-dark: #9aa4b2;
+        }
+
+        body {
+            font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: var(--bg-light);
+            color: var(--text-light);
+            transition: background var(--transition-med), color var(--transition-med);
+        }
+        body.dark { background: var(--bg-dark); color: var(--text-dark); }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card {
+            background: var(--card-light);
+            padding: 20px;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(2,6,23,0.08);
+            margin-bottom: 20px;
+        }
+        body.dark .card { background: var(--card-dark); }
+
+        .btn {
+            background: var(--accent); 
+            color: #fff; 
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: none; 
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform .12s, background .2s;
+        }
+        .btn:hover { transform: translateY(-2px); background: var(--accent-2); }
+
+        .user-info { margin-bottom: 20px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .stat-card { 
+            background: var(--bg-light); 
+            padding: 15px; 
+            border-radius: 10px; 
+            text-align: center;
+        }
+        body.dark .stat-card { background: var(--bg-dark); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Панель управления</h1>
+            <div class="user-info" id="userInfo">
+                Загрузка информации о пользователе...
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>Статистика</h3>
+                    <p>Добро пожаловать в систему!</p>
+                </div>
+            </div>
+
+            <button class="btn" onclick="logout()" style="margin-top: 20px;">Выйти</button>
+        </div>
+    </div>
+
+    <script>
+        // Проверка аутентификации
+        function checkAuth() {
+            const token = localStorage.getItem('session_token');
+            const user = localStorage.getItem('user');
+            
+            if (!token || !user) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            
+            return JSON.parse(user);
+        }
+
+        // Отображение информации о пользователе
+        function displayUserInfo() {
+            const user = checkAuth();
+            if (!user) return;
+
+            const userInfoDiv = document.getElementById('userInfo');
+            userInfoDiv.innerHTML = `
+                <h2>Добро пожаловать, ${user.email}!</h2>
+                <p><strong>Роль:</strong> ${user.role}</p>
+                <p><strong>Дата регистрации:</strong> ${new Date(user.created_at).toLocaleDateString()}</p>
+                ${user.last_login ? `<p><strong>Последний вход:</strong> ${new Date(user.last_login).toLocaleString()}</p>` : ''}
+                ${user.profile_data && user.profile_data.full_name ? `<p><strong>Имя:</strong> ${user.profile_data.full_name}</p>` : ''}
+            `;
+        }
+
+        // Выход из системы
+        function logout() {
+            localStorage.removeItem('user');
+            localStorage.removeItem('session_token');
+            localStorage.removeItem('user_id');
+            window.location.href = 'login.html';
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            displayUserInfo();
+        });
+    </script>
+</body>
+</html>
