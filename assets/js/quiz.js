@@ -1,121 +1,78 @@
-// Функция для перехода на страницу quiz
-function goToQuiz() {
-    window.location.href = 'quiz.html';
-}
-
-// Функция для получения результатов квиза из localStorage
-function getQuizResults() {
-    const results = localStorage.getItem('quizResults');
-    return results ? JSON.parse(results) : null;
-}
-
-// Функция для обновления статистики на главной странице
-function updateMainPageStats() {
-    const results = getQuizResults();
-    
-    if (!results) {
-        // Если результатов нет, оставляем значения по умолчанию
-        return;
-    }
-
-    // Обновляем прогресс квиза
-    const quizProgress = document.querySelector('.progress-item:nth-child(1) .progress-value');
-    const quizProgressBar = document.querySelector('.progress-item:nth-child(1) .progress-fill');
-    
-    if (quizProgress && quizProgressBar) {
-        const percentage = Math.round((results.score / (results.totalQuestions * 10)) * 100);
-        quizProgress.textContent = `${percentage}%`;
-        quizProgressBar.style.width = `${percentage}%`;
-    }
-
-    // Обновляем место в рейтинге (здесь нужно будет доработать после реализации полноценного рейтинга)
-    const rankProgress = document.querySelector('.progress-item:nth-child(2) .progress-value');
-    const rankProgressBar = document.querySelector('.progress-item:nth-child(2) .progress-fill');
-    
-    if (rankProgress && rankProgressBar) {
-        // Временное решение - можно установить фиксированное значение или рассчитать на основе результатов
-        rankProgress.textContent = '—';
-        rankProgressBar.style.width = '0%';
-    }
-
-    // Обновляем время прохождения
-    const timeProgress = document.querySelector('.progress-item:nth-child(3) .progress-value');
-    const timeProgressBar = document.querySelector('.progress-item:nth-child(3) .progress-fill');
-    
-    if (timeProgress && timeProgressBar) {
-        timeProgress.textContent = `${results.timeSeconds} сек`;
-        const timePercentage = Math.min(100, Math.round((results.timeSeconds / 300) * 100)); // Предполагаем макс время 5 минут
-        timeProgressBar.style.width = `${100 - timePercentage}%`; // Меньше время = лучше
-    }
-}
-
-// Функция для сохранения результатов квиза
-function saveQuizResults(score, totalQuestions, timeSeconds, region) {
-    const results = {
-        score: score,
-        totalQuestions: totalQuestions,
-        timeSeconds: timeSeconds,
-        region: region,
-        completedAt: new Date().toISOString()
-    };
-    
-    localStorage.setItem('quizResults', JSON.stringify(results));
-    
-    // Также сохраняем в sessionStorage для немедленного обновления при возврате
-    sessionStorage.setItem('quizResultsUpdated', 'true');
-}
-
-// Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', function() {
-    updateMainPageStats();
-    
-    // Если вернулись с обновленными результатами квиза
-    if (sessionStorage.getItem('quizResultsUpdated') === 'true') {
-        updateMainPageStats();
-        sessionStorage.removeItem('quizResultsUpdated');
-    }
-});
-
-// Расширенная функция для обновления статистики
+// Исправленная функция для обновления статистики
+// ИСПРАВЛЕННАЯ функция для обновления статистики
 function updateDetailedStats() {
     const results = getQuizResults();
-    const quizButton = document.querySelector('.cta-button[onclick="goToQuiz()"]');
-    const quizButtonText = document.getElementById('quiz-button-text');
+    console.log('Current results:', results); // Отладка
     
     if (results) {
-        // Пользователь прошел квиз
-        if (quizButtonText) {
-            quizButtonText.textContent = 'Пройти Quiz снова';
+        // Если у нас есть сохраненный процент - используем его
+        if (results.percentage) {
+            updateStatElement('quiz-score', `${results.percentage}%`);
+            updateProgressBar('quiz-progress-bar', results.percentage);
+        } else {
+            // Старая логика для обратной совместимости
+            const percentage = Math.round((results.score / results.totalQuestions) * 100);
+            updateStatElement('quiz-score', `${percentage}%`);
+            updateProgressBar('quiz-progress-bar', percentage);
         }
         
-        // Обновляем элементы статистики
-        updateStatElement('quiz-score', `${Math.round((results.score / (results.totalQuestions * 10)) * 100)}%`);
         updateStatElement('quiz-time', `${results.timeSeconds} сек`);
-        updateStatElement('quiz-rank', '—'); // Можно доработать для реального рейтинга
         
-        // Обновляем прогресс-бары
-        updateProgressBar('quiz-progress-bar', Math.round((results.score / (results.totalQuestions * 10)) * 100));
-        updateProgressBar('time-progress-bar', Math.min(100, Math.round((300 - results.timeSeconds) / 3))); // Инверсная шкала для времени
-        updateProgressBar('rank-progress-bar', 0); // Заглушка для рейтинга
+        // Временно показываем прочерк для рейтинга, пока не починим базу
+        updateStatElement('quiz-rank', '—');
+        updateProgressBar('rank-progress-bar', 0);
+        
+        // Прогресс для времени
+        const maxReasonableTime = 300;
+        const timePercentage = Math.max(0, Math.min(100, 100 - (results.timeSeconds / maxReasonableTime) * 100));
+        updateProgressBar('time-progress-bar', timePercentage);
         
     } else {
-        // Пользователь не проходил квиз
-        if (quizButtonText) {
-            quizButtonText.textContent = 'Пройти Quiz';
-        }
-        
         // Сбрасываем значения по умолчанию
         updateStatElement('quiz-score', '0%');
         updateStatElement('quiz-time', '0 сек');
         updateStatElement('quiz-rank', '—');
-        
         updateProgressBar('quiz-progress-bar', 0);
         updateProgressBar('time-progress-bar', 0);
         updateProgressBar('rank-progress-bar', 0);
     }
 }
 
-// Вспомогательные функции
+// Функция для получения реального рейтинга игрока
+async function getPlayerRank(region, score, timeSeconds) {
+    try {
+        // Используем тот же Supabase клиент, что и в quiz.html
+        const SUPABASE_URL = 'https://xlrmxinwpwjjurltvoms.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhscm14aW53cHdqanVybHR2b21zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3ODY3NjYsImV4cCI6MjA3ODM2Mjc2Nn0.1dUPUXBfmN3cMTkAQVHWgXdhU74hJ6U96v1M_OSoZyI';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Получаем всех игроков для этого региона
+        const { data: leaders, error } = await supabase
+            .from('leaderboard')
+            .select('*')
+            .eq('region', region)
+            .order('score', { ascending: false })
+            .order('time_seconds', { ascending: true });
+
+        if (error) throw error;
+
+        if (leaders && leaders.length > 0) {
+            // Находим позицию текущего игрока
+            for (let i = 0; i < leaders.length; i++) {
+                if (leaders[i].score === score && leaders[i].time_seconds === timeSeconds) {
+                    return i + 1; // Возвращаем позицию (начинается с 1)
+                }
+            }
+        }
+        
+        return '—'; // Если не нашли в рейтинге
+    } catch (error) {
+        console.error('Error getting player rank:', error);
+        return '—';
+    }
+}
+
+// Вспомогательные функции (оставляем без изменений)
 function updateStatElement(elementId, value) {
     const element = document.getElementById(elementId);
     if (element) {
@@ -130,11 +87,42 @@ function updateProgressBar(elementId, percentage) {
     }
 }
 
-// Обновляем статистику при загрузке и при возвращении на страницу
+// Функция для получения результатов квиза из localStorage
+function getQuizResults() {
+    const results = localStorage.getItem('quizResults');
+    return results ? JSON.parse(results) : null;
+}
+
+function debugQuizResults() {
+    const results = localStorage.getItem('quizResults');
+    console.log('Raw localStorage results:', results);
+    if (results) {
+        const parsed = JSON.parse(results);
+        console.log('Parsed results:', parsed);
+        console.log('Score:', parsed.score, 'Total:', parsed.totalQuestions);
+        console.log('Calculated percentage:', Math.round((parsed.score / parsed.totalQuestions) * 100));
+    }
+}
+
+// Функция для сохранения результатов квиза
+function saveQuizResults(score, totalQuestions, timeSeconds, region) {
+    const results = {
+        score: score,
+        totalQuestions: totalQuestions,
+        timeSeconds: timeSeconds,
+        region: region,
+        completedAt: new Date().toISOString()
+    };
+    
+    localStorage.setItem('quizResults', JSON.stringify(results));
+    sessionStorage.setItem('quizResultsUpdated', 'true');
+}
+
+// Обновляем статистику при загрузке
 document.addEventListener('DOMContentLoaded', function() {
     updateDetailedStats();
     
-    // Слушаем изменения в storage для обновления в реальном времени
+    // Слушаем изменения в storage
     window.addEventListener('storage', function(e) {
         if (e.key === 'quizResults') {
             updateDetailedStats();
@@ -147,3 +135,5 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.removeItem('quizResultsUpdated');
     }
 });
+
+debugQuizResults();
