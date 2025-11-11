@@ -1,13 +1,33 @@
 class AchievementSystem {
     constructor() {
         this.achievements = {
-            'welcome': { image: 'welcome.png', earned: false },
+            // По количеству квизов
             'quiz1': { image: 'quiz1.png', earned: false },
             'quiz3': { image: 'quiz3.png', earned: false },
             'quiz5': { image: 'quiz5.png', earned: false },
-            'zero': { image: 'zero.png', earned: false }
+            
+            // За прохождение каждого региона
+            'dnr': { image: 'dnr.png', earned: false },
+            'lnr': { image: 'lnr.png', earned: false },
+            'zaporoj': { image: 'zaporoj.png', earned: false },
+            'herson': { image: 'herson.png', earned: false },
+            'krim': { image: 'krim.png', earned: false },
+            
+            // За баллы
+            '100score': { image: '100score.png', earned: false },
+            '0score': { image: '0score.png', earned: false },
+            
+            // За места в лидерборде
+            '1place': { image: '1place.png', earned: false },
+            '1_3place': { image: '1_3place.png', earned: false },
+            
+            // За время
+            '1minute': { image: '1minute.png', earned: false },
+            '30second': { image: '30second.png', earned: false }
         };
+        
         this.quizCount = 0;
+        this.completedRegions = new Set(); // Для отслеживания пройденных регионов
         this.achievementQueue = [];
         this.isShowingAchievement = false;
         this.init();
@@ -16,12 +36,6 @@ class AchievementSystem {
     async init() {
         await this.loadAchievements();
         this.setupAchievementsContainer();
-        
-        if (!this.achievements.welcome.earned) {
-            setTimeout(() => {
-                this.unlockAchievement('welcome');
-            }, 1500);
-        }
     }
 
     async loadAchievements() {
@@ -31,6 +45,7 @@ class AchievementSystem {
                 const data = JSON.parse(saved);
                 this.achievements = { ...this.achievements, ...data.achievements };
                 this.quizCount = data.quizCount || 0;
+                this.completedRegions = new Set(data.completedRegions || []);
             }
         } catch (error) {
             console.error('Error loading achievements:', error);
@@ -40,7 +55,8 @@ class AchievementSystem {
     saveAchievements() {
         const data = {
             achievements: this.achievements,
-            quizCount: this.quizCount
+            quizCount: this.quizCount,
+            completedRegions: Array.from(this.completedRegions)
         };
         localStorage.setItem('quiz_achievements', JSON.stringify(data));
     }
@@ -128,11 +144,16 @@ class AchievementSystem {
         }, 3000);
     }
 
-    onQuizComplete(score) {
+    // Метод для вызова при завершении квиза
+    async onQuizComplete(score, timeSeconds, region, playerName) {
         this.quizCount++;
+        
+        // Сохраняем пройденный регион
+        this.completedRegions.add(region);
         
         const achievementsToUnlock = [];
         
+        // Достижения по количеству квизов
         if (this.quizCount >= 1 && !this.achievements.quiz1.earned) {
             achievementsToUnlock.push('quiz1');
         }
@@ -142,10 +163,41 @@ class AchievementSystem {
         if (this.quizCount >= 5 && !this.achievements.quiz5.earned) {
             achievementsToUnlock.push('quiz5');
         }
-        if (score === 0 && !this.achievements.zero.earned) {
-            achievementsToUnlock.push('zero');
+        
+        // Достижения за прохождение регионов
+        const regionAchievements = {
+            'Донецкая Народная Республика': 'dnr',
+            'Луганская Народная Республика': 'lnr',
+            'Запорожская область': 'zaporoj',
+            'Херсонская область': 'herson',
+            'Республика Крым': 'krim'
+        };
+        
+        if (regionAchievements[region] && !this.achievements[regionAchievements[region]].earned) {
+            achievementsToUnlock.push(regionAchievements[region]);
         }
         
+        // Достижения за баллы
+        if (score === 100 && !this.achievements['100score'].earned) {
+            achievementsToUnlock.push('100score');
+        }
+        if (score === 0 && !this.achievements['0score'].earned) {
+            achievementsToUnlock.push('0score');
+        }
+        
+        // Достижения за время
+        if (timeSeconds < 60 && !this.achievements['1minute'].earned) {
+            achievementsToUnlock.push('1minute');
+        }
+        if (timeSeconds < 30 && !this.achievements['30second'].earned) {
+            achievementsToUnlock.push('30second');
+        }
+        
+        // Достижения за места в лидерборде (проверяем асинхронно)
+        const leaderboardAchievements = await this.checkLeaderboardAchievements(region, playerName);
+        achievementsToUnlock.push(...leaderboardAchievements);
+        
+        // Разблокируем все достижения с задержкой
         achievementsToUnlock.forEach((achievementId, index) => {
             setTimeout(() => {
                 this.unlockAchievement(achievementId);
@@ -155,8 +207,33 @@ class AchievementSystem {
         this.saveAchievements();
     }
 
+    // Проверка достижений лидерборда
+    async checkLeaderboardAchievements(region, playerName) {
+        const achievements = [];
+        
+        try {
+            const leaders = await getLeadersForRegion(region);
+            const playerPosition = leaders.findIndex(leader => leader.name === playerName) + 1;
+            
+            if (playerPosition === 1 && !this.achievements['1place'].earned) {
+                achievements.push('1place');
+            }
+            if (playerPosition >= 1 && playerPosition <= 3 && !this.achievements['1_3place'].earned) {
+                achievements.push('1_3place');
+            }
+        } catch (error) {
+            console.error('Error checking leaderboard achievements:', error);
+        }
+        
+        return achievements;
+    }
+
     getQuizCount() {
         return this.quizCount;
+    }
+
+    getCompletedRegions() {
+        return Array.from(this.completedRegions);
     }
 
     resetAchievements() {
@@ -164,6 +241,7 @@ class AchievementSystem {
             this.achievements[key].earned = false;
         });
         this.quizCount = 0;
+        this.completedRegions.clear();
         this.achievementQueue = [];
         this.isShowingAchievement = false;
         localStorage.removeItem('quiz_achievements');
