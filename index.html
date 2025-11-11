@@ -358,8 +358,6 @@
     let startTime = 0, endTime = 0;
     let autoNextTimer = null;
     let autoNextInterval = null;
-    let currentQuestions = []; // Массив для перемешанных вопросов
-    let currentAnswers = []; // Массив для правильных ответов в перемешанном порядке
 
     /* Elements */
     const startScreen = document.getElementById('start-screen');
@@ -387,43 +385,6 @@
     const savingTextEl = document.getElementById('saving-text');
     const leadersBody = document.getElementById('leaders-body');
     const leadersRegionName = document.getElementById('leaders-region-name');
-
-    /***** Функции для перемешивания *****/
-    // Функция для перемешивания массива (алгоритм Фишера-Йейтса)
-    function shuffleArray(array) {
-      const newArray = [...array];
-      for (let i = newArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-      }
-      return newArray;
-    }
-
-    // Функция для перемешивания вопросов и ответов
-    function shuffleQuestionsAndAnswers(questions) {
-      // Перемешиваем порядок вопросов
-      const shuffledQuestions = shuffleArray(questions);
-      
-      // Для каждого вопроса перемешиваем варианты ответов и запоминаем новый индекс правильного ответа
-      const processedQuestions = shuffledQuestions.map(question => {
-        // Сохраняем правильный ответ до перемешивания
-        const correctAnswer = question.options[question.answer];
-        
-        // Перемешиваем варианты ответов
-        const shuffledOptions = shuffleArray(question.options);
-        
-        // Находим новый индекс правильного ответа
-        const newAnswerIndex = shuffledOptions.indexOf(correctAnswer);
-        
-        return {
-          q: question.q,
-          options: shuffledOptions,
-          answer: newAnswerIndex
-        };
-      });
-      
-      return processedQuestions;
-    }
 
     /***** Инициализация списка областей в стартовом экране *****/
     const regions = Object.keys(QUESTIONS_BY_REGION);
@@ -493,11 +454,6 @@
       player = document.getElementById('player').value.trim();
       if(!player) return alert('Введите имя!');
       if(!selectedRegion) return alert('Выберите область, для которой пройдёте квиз.');
-      
-      // Перемешиваем вопросы и ответы перед началом квиза
-      const originalQuestions = QUESTIONS_BY_REGION[selectedRegion];
-      currentQuestions = shuffleQuestionsAndAnswers(originalQuestions);
-      
       // init
       current = 0; score = 0; startTime = Date.now();
       // switch
@@ -507,9 +463,10 @@
     };
 
     function renderQuestion(){
-      const q = currentQuestions[current];
+      const questions = QUESTIONS_BY_REGION[selectedRegion];
+      const q = questions[current];
       qText.textContent = q.q;
-      progressText.textContent = `Вопрос ${current+1} из ${currentQuestions.length}`;
+      progressText.textContent = `Вопрос ${current+1} из ${questions.length}`;
       regionLabel.textContent = selectedRegion;
       optionsBox.innerHTML = '';
       q.options.forEach((opt, i) => {
@@ -528,7 +485,8 @@
 
     function selectAnswer(idx, elClicked){
       if(autoNextTimer) return; // уже выбран — игнор
-      const q = currentQuestions[current];
+      const questions = QUESTIONS_BY_REGION[selectedRegion];
+      const q = questions[current];
 
       // подсветка
       Array.from(optionsBox.children).forEach((optEl, i) => {
@@ -578,7 +536,8 @@
     }
 
     function nextOrFinish(){
-      if(current < currentQuestions.length - 1){
+      const questions = QUESTIONS_BY_REGION[selectedRegion];
+      if(current < questions.length - 1){
         current++;
         renderQuestion();
       } else {
@@ -593,7 +552,7 @@
       hide(quizScreen);
       show(resultScreen);
 
-      const totalPoints = currentQuestions.length * POINTS;
+      const totalPoints = QUESTIONS_BY_REGION[selectedRegion].length * POINTS;
       finalScoreEl.textContent = `${score} / ${totalPoints}`;
       timeResultEl.textContent = `Время: ${timeSpent} сек`;
 
@@ -626,7 +585,7 @@
             {
               name: player,
               score: score,
-              total_questions: currentQuestions.length,
+              total_questions: QUESTIONS_BY_REGION[selectedRegion].length,
               time_seconds: timeSeconds,
               region: selectedRegion,
               created_at: new Date().toISOString()
