@@ -1,4 +1,3 @@
-// Система достижений для квиза (только изображения) с очередью
 class AchievementSystem {
     constructor() {
         this.achievements = {
@@ -11,8 +10,8 @@ class AchievementSystem {
             'zero': { image: 'zero.png', earned: false }
         };
         this.quizCount = 0;
-        this.achievementQueue = []; // Очередь достижений
-        this.isShowingAchievement = false; // Флаг показа достижения
+        this.achievementQueue = [];
+        this.isShowingAchievement = false;
         this.init();
     }
 
@@ -20,7 +19,6 @@ class AchievementSystem {
         await this.loadAchievements();
         this.setupAchievementsContainer();
         
-        // Автоматически выдаем достижение при первом заходе
         if (!this.achievements.welcome.earned) {
             setTimeout(() => {
                 this.unlockAchievement('welcome');
@@ -28,7 +26,6 @@ class AchievementSystem {
         }
     }
 
-    // Загрузка достижений из localStorage
     async loadAchievements() {
         try {
             const saved = localStorage.getItem('quiz_achievements');
@@ -42,7 +39,6 @@ class AchievementSystem {
         }
     }
 
-    // Сохранение достижений в localStorage
     saveAchievements() {
         const data = {
             achievements: this.achievements,
@@ -51,7 +47,6 @@ class AchievementSystem {
         localStorage.setItem('quiz_achievements', JSON.stringify(data));
     }
 
-    // Создание контейнера для достижений
     setupAchievementsContainer() {
         if (!document.getElementById('achievements-container')) {
             const container = document.createElement('div');
@@ -67,7 +62,6 @@ class AchievementSystem {
         }
     }
 
-    // Разблокировка достижения
     unlockAchievement(achievementId) {
         if (!this.achievements[achievementId] || this.achievements[achievementId].earned) {
             return false;
@@ -79,13 +73,11 @@ class AchievementSystem {
         return true;
     }
 
-    // Добавление достижения в очередь
     addToQueue(achievementId) {
         this.achievementQueue.push(achievementId);
         this.processQueue();
     }
 
-    // Обработка очереди достижений
     processQueue() {
         if (this.isShowingAchievement || this.achievementQueue.length === 0) {
             return;
@@ -95,7 +87,6 @@ class AchievementSystem {
         this.showAchievement(achievementId);
     }
 
-    // Показ анимации достижения
     showAchievement(achievementId) {
         this.isShowingAchievement = true;
         const achievement = this.achievements[achievementId];
@@ -120,13 +111,11 @@ class AchievementSystem {
 
         container.appendChild(achievementElement);
 
-        // Анимация появления
         requestAnimationFrame(() => {
             achievementElement.style.transform = 'translateX(0)';
             achievementElement.style.opacity = '1';
         });
 
-        // Автоматическое скрытие через 3 секунды
         setTimeout(() => {
             achievementElement.style.transform = 'translateX(-100px)';
             achievementElement.style.opacity = '0';
@@ -136,18 +125,16 @@ class AchievementSystem {
                     achievementElement.parentNode.removeChild(achievementElement);
                 }
                 this.isShowingAchievement = false;
-                this.processQueue(); // Показываем следующее достижение
+                this.processQueue();
             }, 500);
         }, 3000);
     }
 
-    // Метод для вызова при завершении квиза
     onQuizComplete(score) {
         this.quizCount++;
         
         const achievementsToUnlock = [];
         
-        // Проверяем достижения по количеству пройденных квизов
         if (this.quizCount >= 1 && !this.achievements.quiz1.earned) {
             achievementsToUnlock.push('quiz1');
         }
@@ -164,27 +151,23 @@ class AchievementSystem {
             achievementsToUnlock.push('quiz10');
         }
         
-        // Проверяем достижение за 0 баллов
         if (score === 0 && !this.achievements.zero.earned) {
             achievementsToUnlock.push('zero');
         }
         
-        // Разблокируем все достижения с небольшой задержкой между ними
         achievementsToUnlock.forEach((achievementId, index) => {
             setTimeout(() => {
                 this.unlockAchievement(achievementId);
-            }, index * 3500); // Задержка 3.5 секунды между достижениями
+            }, index * 3500);
         });
         
         this.saveAchievements();
     }
 
-    // Получение текущего количества квизов
     getQuizCount() {
         return this.quizCount;
     }
 
-    // Сброс всех достижений (для тестирования)
     resetAchievements() {
         Object.keys(this.achievements).forEach(key => {
             this.achievements[key].earned = false;
@@ -194,7 +177,6 @@ class AchievementSystem {
         this.isShowingAchievement = false;
         localStorage.removeItem('quiz_achievements');
         
-        // Очищаем контейнер
         const container = document.getElementById('achievements-container');
         if (container) {
             container.innerHTML = '';
