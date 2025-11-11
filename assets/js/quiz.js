@@ -22,14 +22,25 @@ async function updateDetailedStats() {
             updateStatElement('quiz-rank', 'Загрузка...');
             const rank = await getPlayerRank(results.playerName, results.region);
             updateStatElement('quiz-rank', rank);
+            
+            // ПРОГРЕСС-БАР ДЛЯ РЕЙТИНГА
+            let rankProgress = 0;
+            if (rank !== '—' && typeof rank === 'number') {
+                rankProgress = rank === 1 ? 100 : rank === 2 ? 80 : rank === 3 ? 60 : 40;
+            }
+            updateProgressBar('rank-progress-bar', rankProgress);
         } else {
             updateStatElement('quiz-rank', '—');
+            updateProgressBar('rank-progress-bar', 0);
         }
         
     } else {
         updateStatElement('quiz-score', '0%');
         updateStatElement('quiz-time', '0 сек');
         updateStatElement('quiz-rank', '—');
+        updateProgressBar('quiz-progress-bar', 0);
+        updateProgressBar('time-progress-bar', 0);
+        updateProgressBar('rank-progress-bar', 0);
     }
 }
 
