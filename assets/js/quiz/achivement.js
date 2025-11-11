@@ -1,4 +1,4 @@
-// Система достижений для квиза (только изображения)
+// Система достижений для квиза (только изображения) с очередью
 class AchievementSystem {
     constructor() {
         this.achievements = {
@@ -11,6 +11,8 @@ class AchievementSystem {
             'zero': { image: 'zero.png', earned: false }
         };
         this.quizCount = 0;
+        this.achievementQueue = []; // Очередь достижений
+        this.isShowingAchievement = false; // Флаг показа достижения
         this.init();
     }
 
@@ -59,9 +61,6 @@ class AchievementSystem {
                 top: 20px;
                 left: 20px;
                 z-index: 10000;
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
                 pointer-events: none;
             `;
             document.body.appendChild(container);
@@ -75,13 +74,30 @@ class AchievementSystem {
         }
 
         this.achievements[achievementId].earned = true;
-        this.showAchievement(achievementId);
+        this.addToQueue(achievementId);
         this.saveAchievements();
         return true;
     }
 
+    // Добавление достижения в очередь
+    addToQueue(achievementId) {
+        this.achievementQueue.push(achievementId);
+        this.processQueue();
+    }
+
+    // Обработка очереди достижений
+    processQueue() {
+        if (this.isShowingAchievement || this.achievementQueue.length === 0) {
+            return;
+        }
+
+        const achievementId = this.achievementQueue.shift();
+        this.showAchievement(achievementId);
+    }
+
     // Показ анимации достижения
     showAchievement(achievementId) {
+        this.isShowingAchievement = true;
         const achievement = this.achievements[achievementId];
         const container = document.getElementById('achievements-container');
         
@@ -99,6 +115,7 @@ class AchievementSystem {
             transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
         `;
 
         container.appendChild(achievementElement);
@@ -118,6 +135,8 @@ class AchievementSystem {
                 if (achievementElement.parentNode) {
                     achievementElement.parentNode.removeChild(achievementElement);
                 }
+                this.isShowingAchievement = false;
+                this.processQueue(); // Показываем следующее достижение
             }, 500);
         }, 3000);
     }
@@ -126,27 +145,36 @@ class AchievementSystem {
     onQuizComplete(score) {
         this.quizCount++;
         
+        const achievementsToUnlock = [];
+        
         // Проверяем достижения по количеству пройденных квизов
         if (this.quizCount >= 1 && !this.achievements.quiz1.earned) {
-            this.unlockAchievement('quiz1');
+            achievementsToUnlock.push('quiz1');
         }
         if (this.quizCount >= 3 && !this.achievements.quiz3.earned) {
-            this.unlockAchievement('quiz3');
+            achievementsToUnlock.push('quiz3');
         }
         if (this.quizCount >= 5 && !this.achievements.quiz5.earned) {
-            this.unlockAchievement('quiz5');
+            achievementsToUnlock.push('quiz5');
         }
         if (this.quizCount >= 7 && !this.achievements.quiz7.earned) {
-            this.unlockAchievement('quiz7');
+            achievementsToUnlock.push('quiz7');
         }
         if (this.quizCount >= 10 && !this.achievements.quiz10.earned) {
-            this.unlockAchievement('quiz10');
+            achievementsToUnlock.push('quiz10');
         }
         
         // Проверяем достижение за 0 баллов
         if (score === 0 && !this.achievements.zero.earned) {
-            this.unlockAchievement('zero');
+            achievementsToUnlock.push('zero');
         }
+        
+        // Разблокируем все достижения с небольшой задержкой между ними
+        achievementsToUnlock.forEach((achievementId, index) => {
+            setTimeout(() => {
+                this.unlockAchievement(achievementId);
+            }, index * 3500); // Задержка 3.5 секунды между достижениями
+        });
         
         this.saveAchievements();
     }
@@ -162,6 +190,14 @@ class AchievementSystem {
             this.achievements[key].earned = false;
         });
         this.quizCount = 0;
+        this.achievementQueue = [];
+        this.isShowingAchievement = false;
         localStorage.removeItem('quiz_achievements');
+        
+        // Очищаем контейнер
+        const container = document.getElementById('achievements-container');
+        if (container) {
+            container.innerHTML = '';
+        }
     }
 }
