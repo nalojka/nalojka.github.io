@@ -5,8 +5,6 @@ class AchievementSystem {
             'quiz1': { image: 'quiz1.png', earned: false },
             'quiz3': { image: 'quiz3.png', earned: false },
             'quiz5': { image: 'quiz5.png', earned: false },
-            'quiz7': { image: 'quiz7.png', earned: false },
-            'quiz10': { image: 'quiz10.png', earned: false },
             'zero': { image: 'zero.png', earned: false }
         };
         this.quizCount = 0;
@@ -144,13 +142,6 @@ class AchievementSystem {
         if (this.quizCount >= 5 && !this.achievements.quiz5.earned) {
             achievementsToUnlock.push('quiz5');
         }
-        if (this.quizCount >= 7 && !this.achievements.quiz7.earned) {
-            achievementsToUnlock.push('quiz7');
-        }
-        if (this.quizCount >= 10 && !this.achievements.quiz10.earned) {
-            achievementsToUnlock.push('quiz10');
-        }
-        
         if (score === 0 && !this.achievements.zero.earned) {
             achievementsToUnlock.push('zero');
         }
