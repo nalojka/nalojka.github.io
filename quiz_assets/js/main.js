@@ -1,28 +1,23 @@
-/***** Supabase config *****/
 const SUPABASE_URL = 'https://xlrmxinwpwjjurltvoms.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhscm14aW53cHdqanVybHR2b21zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3ODY3NjYsImV4cCI6MjA3ODM2Mjc2Nn0.1dUPUXBfmN3cMTkAQVHWgXdhU74hJ6U96v1M_OSoZyI';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/***** Achievement System *****/
 let achievementSystem;
 
-// Инициализация системы достижений после загрузки страницы
 document.addEventListener('DOMContentLoaded', function() {
     achievementSystem = new AchievementSystem();
 });
 
-/***** Переменные состояния *****/
 const POINTS = 10;
-const AUTO_NEXT_DELAY = 1500; // ms (1.5 s)
+const AUTO_NEXT_DELAY = 1500;
 let selectedRegion = null;
 let player = "";
 let current = 0, score = 0;
 let startTime = 0, endTime = 0;
 let autoNextTimer = null;
 let autoNextInterval = null;
-let currentSessionQuestions = []; // Вопросы для текущей сессии квиза
+let currentSessionQuestions = [];
 
-/* Elements */
 const startScreen = document.getElementById('start-screen');
 const quizScreen = document.getElementById('quiz-screen');
 const resultScreen = document.getElementById('result-screen');
@@ -50,7 +45,6 @@ const savingTextEl = document.getElementById('saving-text');
 const leadersBody = document.getElementById('leaders-body');
 const leadersRegionName = document.getElementById('leaders-region-name');
 
-/***** Функции для перемешивания *****/
 function shuffleArray(array) {
   const newArray = [...array];
   for (let i = newArray.length - 1; i > 0; i--) {
@@ -80,7 +74,6 @@ function prepareQuestionsForSession(originalQuestions) {
   return processedQuestions;
 }
 
-/***** Инициализация списка областей в стартовом экране *****/
 const regions = Object.keys(ORIGINAL_QUESTIONS_BY_REGION);
 
 function buildAreasGrid(){
@@ -102,7 +95,6 @@ function buildAreasGrid(){
 }
 buildAreasGrid();
 
-/***** Theme toggle с Font  и motion blur *****/
 const themeToggle = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
 const savedTheme = localStorage.getItem('theme') || 'light';
@@ -130,7 +122,6 @@ themeToggle.onclick = () => {
   }, 400);
 };
 
-/***** Quiz flow *****/
 function show(el){ el.classList.remove('hidden'); }
 function hide(el){ el.classList.add('hidden'); }
 
@@ -173,14 +164,12 @@ function selectAnswer(idx, elClicked){
   if(autoNextTimer) return;
   const q = currentSessionQuestions[current];
 
-  // Показываем пояснение при неправильном ответе
   if(idx !== q.answer) {
     explanationContainer.innerHTML = `<div class="explanation"><strong>Пояснение:</strong> ${q.explanation}</div>`;
   } else {
     explanationContainer.innerHTML = '';
   }
 
-  // Подсветка
   Array.from(optionsBox.children).forEach((optEl, i) => {
     if(i === q.answer) optEl.classList.add('correct');
     if(i === idx && idx !== q.answer) optEl.classList.add('wrong');
@@ -250,7 +239,6 @@ function finishQuiz(){
 
   savingTextEl.textContent = "Сохраняем результат...";
   
-  // Вызов системы достижений
   if (achievementSystem) {
       achievementSystem.onQuizComplete(score);
   }
@@ -267,10 +255,8 @@ playAgainBtn.onclick = () => {
   currentSessionQuestions = [];
 };
 
-/***** Supabase: сохранение с проверкой лучшего результата *****/
 async function autoSaveScore(timeSeconds){
   try{
-    // Сначала проверяем существующие результаты для этого игрока и региона
     const { data: existingResults, error: checkError } = await supabase
       .from('leaderboard')
       .select('*')
@@ -281,23 +267,19 @@ async function autoSaveScore(timeSeconds){
 
     let shouldSave = true;
     
-    // Если есть предыдущие результаты, проверяем, нужно ли сохранять новый
     if(existingResults && existingResults.length > 0) {
       const bestResult = existingResults.reduce((best, current) => {
-        // Сравниваем сначала по очкам, затем по времени
         if(current.score > best.score) return current;
         if(current.score === best.score && current.time_seconds < best.time_seconds) return current;
         return best;
       });
 
-      // Если текущий результат хуже лучшего, не сохраняем
       if(score < bestResult.score || (score === bestResult.score && timeSeconds >= bestResult.time_seconds)) {
         shouldSave = false;
         savingTextEl.textContent = "Ваш результат не улучшил предыдущее достижение";
       }
     }
 
-    // Сохраняем только если результат лучше или это первый результат
     if(shouldSave) {
       const { data, error } = await supabase
         .from('leaderboard')
@@ -321,10 +303,8 @@ async function autoSaveScore(timeSeconds){
   }
 }
 
-/***** Получение лидеров с уникальными именами *****/
 async function getLeadersForRegion(region){
   try{
-    // Получаем все результаты для региона
     const { data, error } = await supabase
       .from('leaderboard')
       .select('*')
@@ -334,7 +314,6 @@ async function getLeadersForRegion(region){
 
     if(error) throw error;
 
-    // Группируем по имени и выбираем лучший результат для каждого игрока
     const uniquePlayers = new Map();
     
     data.forEach(row => {
@@ -342,7 +321,6 @@ async function getLeadersForRegion(region){
       if(!existing) {
         uniquePlayers.set(row.name, row);
       } else {
-        // Сравниваем результаты: сначала по очкам, затем по времени
         if(row.score > existing.score || 
            (row.score === existing.score && row.time_seconds < existing.time_seconds)) {
           uniquePlayers.set(row.name, row);
@@ -350,13 +328,12 @@ async function getLeadersForRegion(region){
       }
     });
 
-    // Преобразуем обратно в массив и сортируем
     return Array.from(uniquePlayers.values())
       .sort((a, b) => {
         if(b.score !== a.score) return b.score - a.score;
         return a.time_seconds - b.time_seconds;
       })
-      .slice(0, 20); // Ограничиваем 20 лучшими
+      .slice(0, 20);
 
   }catch(err){
     console.error('Load leaders error', err);
@@ -392,10 +369,8 @@ viewLeadersBtn2.onclick = showLeaders;
 backHomeBtn.onclick = () => { hide(leadersScreen); show(startScreen); };
 refreshLeadersBtn.onclick = showLeaders;
 
-/***** Utilities *****/
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c])); }
 
-/***** Keyboard shortcuts accessibility *****/
 document.addEventListener('keydown', (e)=>{
   if(e.key === 'Escape'){
     hide(quizScreen); hide(resultScreen); hide(leadersScreen); show(startScreen);
