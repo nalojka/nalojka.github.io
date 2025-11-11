@@ -737,6 +737,7 @@ function finishQuiz() {
     finalScoreEl.textContent = `${score} / ${totalPoints}`;
     timeResultEl.textContent = `Время: ${timeSpent} сек`;
 
+    // ПРАВИЛЬНЫЙ расчет процента - убираем умножение на 10
     const pct = Math.round((score / totalPoints) * 100);
     if(pct >= 80) resultTextEl.textContent = "Отлично! 🎉";
     else if(pct >= 60) resultTextEl.textContent = "Хорошо! 👍";
@@ -756,6 +757,6 @@ function finishQuiz() {
         savingTextEl.textContent = "❌ Ошибка сохранения";
     });
 }
-  </script>
+</script>
 </body>
 </html>
