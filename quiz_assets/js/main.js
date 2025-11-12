@@ -6,6 +6,7 @@ let achievementSystem;
 
 document.addEventListener('DOMContentLoaded', function() {
     achievementSystem = new AchievementSystem();
+    achievementSystem.init(); // ДОБАВЬТЕ ЭТУ СТРОКУ!
 });
 
 const POINTS = 10;
@@ -362,11 +363,47 @@ async function autoSaveScore(timeSeconds){
         } else {
           console.log('✅ Упрощенные данные успешно сохранены:', simpleResult);
           savingTextEl.textContent = "✅ Результат сохранен в лидерборд!";
+          
+          // После успешного сохранения проверяем достижения лидерборда
+          setTimeout(async () => {
+            try {
+              const leaders = await getLeadersForRegion(selectedRegion);
+              if (achievementSystem && leaders) {
+                achievementSystem.checkLeaderboardAchievements(leaders, player);
+              }
+            } catch (err) {
+              console.error('Error checking leaderboard achievements:', err);
+            }
+          }, 1000);
         }
       } else {
         console.log('✅ Данные успешно сохранены:', data);
         savingTextEl.textContent = "✅ Результат сохранен в лидерборд!";
+        
+        // После успешного сохранения проверяем достижения лидерборда
+        setTimeout(async () => {
+          try {
+            const leaders = await getLeadersForRegion(selectedRegion);
+            if (achievementSystem && leaders) {
+              achievementSystem.checkLeaderboardAchievements(leaders, player);
+            }
+          } catch (err) {
+            console.error('Error checking leaderboard achievements:', err);
+          }
+        }, 1000);
       }
+    } else {
+      // Если результат не сохранялся, все равно проверяем лидерборд
+      setTimeout(async () => {
+        try {
+          const leaders = await getLeadersForRegion(selectedRegion);
+          if (achievementSystem && leaders) {
+            achievementSystem.checkLeaderboardAchievements(leaders, player);
+          }
+        } catch (err) {
+          console.error('Error checking leaderboard achievements:', err);
+        }
+      }, 1000);
     }
 
   }catch(err){
