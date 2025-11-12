@@ -257,22 +257,27 @@ playAgainBtn.onclick = () => {
 
 async function autoSaveScore(timeSeconds){
   try{
+    console.log('🟡 Начало сохранения результата...');
+    
     // Получаем IP-адрес пользователя
     let userIP = "unknown";
     try {
       const ipResponse = await fetch('https://api.ipify.org?format=json');
       const ipData = await ipResponse.json();
       userIP = ipData.ip;
-      console.log('IP пользователя:', userIP); // Логируем IP
+      console.log('📡 IP пользователя:', userIP);
     } catch (ipError) {
-      console.warn('Не удалось получить IP:', ipError);
+      console.warn('⚠️ Не удалось получить IP:', ipError);
       userIP = "failed_to_fetch";
     }
 
     // Получаем User Agent
     const userAgent = navigator.userAgent || "unknown";
-    console.log('User Agent:', userAgent); // Логируем User Agent
+    console.log('🌐 User Agent:', userAgent);
 
+    // Проверяем существующие результаты
+    console.log('🔍 Проверяем существующие результаты для:', player, 'в регионе:', selectedRegion);
+    
     const { data: existingResults, error: checkError } = await supabase
       .from('leaderboard')
       .select('*')
@@ -280,9 +285,11 @@ async function autoSaveScore(timeSeconds){
       .eq('region', selectedRegion);
 
     if(checkError) {
-      console.error('Check error:', checkError);
+      console.error('❌ Ошибка при проверке результатов:', checkError);
       throw checkError;
     }
+
+    console.log('📊 Найдено существующих результатов:', existingResults?.length || 0);
 
     let shouldSave = true;
     
@@ -293,9 +300,13 @@ async function autoSaveScore(timeSeconds){
         return best;
       });
 
+      console.log('🏆 Лучший предыдущий результат:', bestResult.score, 'очков за', bestResult.time_seconds, 'сек');
+      console.log('🎯 Текущий результат:', score, 'очков за', timeSeconds, 'сек');
+
       if(score < bestResult.score || (score === bestResult.score && timeSeconds >= bestResult.time_seconds)) {
         shouldSave = false;
         savingTextEl.textContent = "Ваш результат не улучшил предыдущее достижение";
+        console.log('ℹ️ Результат не улучшен - пропускаем сохранение');
       }
     }
 
@@ -312,23 +323,54 @@ async function autoSaveScore(timeSeconds){
         created_at: new Date().toISOString()
       };
 
-      console.log('Данные для сохранения:', insertData);
+      console.log('💾 Данные для сохранения:', insertData);
 
+      // Пробуем сохранить без указания колонок
       const { data, error } = await supabase
         .from('leaderboard')
         .insert([insertData]);
 
       if(error) {
-        console.error('Supabase insert error:', error);
-        throw error;
+        console.error('❌ Ошибка Supabase:', error);
+        console.error('💬 Детали ошибки:', error.message);
+        console.error('🔧 Код ошибки:', error.code);
+        console.error('📋 Детали:', error.details);
+        console.error('💡 Подсказка:', error.hint);
+        
+        // Пробуем альтернативный способ - сохраняем только основные поля
+        console.log('🔄 Пробуем альтернативный способ сохранения...');
+        
+        const simpleData = {
+          name: player,
+          score: score,
+          total_questions: currentSessionQuestions.length,
+          time_seconds: timeSeconds,
+          region: selectedRegion,
+          created_at: new Date().toISOString()
+        };
+        
+        console.log('💾 Упрощенные данные:', simpleData);
+        
+        const { data: simpleResult, error: simpleError } = await supabase
+          .from('leaderboard')
+          .insert([simpleData]);
+          
+        if(simpleError) {
+          console.error('❌ Ошибка при упрощенном сохранении:', simpleError);
+          throw simpleError;
+        } else {
+          console.log('✅ Упрощенные данные успешно сохранены:', simpleResult);
+          savingTextEl.textContent = "✅ Результат сохранен в лидерборд!";
+        }
+      } else {
+        console.log('✅ Данные успешно сохранены:', data);
+        savingTextEl.textContent = "✅ Результат сохранен в лидерборд!";
       }
-      
-      console.log('✅ Данные успешно сохранены:', data);
-      savingTextEl.textContent = "✅ Результат сохранен в лидерборд!";
     }
 
   }catch(err){
-    console.error('Save error', err);
+    console.error('💥 Save error:', err);
+    console.error('📜 Stack:', err.stack);
     savingTextEl.textContent = "❌ Ошибка сохранения: " + (err.message || 'Неизвестная ошибка');
   }
 }
