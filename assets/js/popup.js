@@ -64,22 +64,17 @@ class PopupManager {
             <div class="popup-content">
                 <button class="popup-close">&times;</button>
                 <div class="hero-detail active">
-                    <div class="detail-header">
-                        <img src="${hero.image}" alt="${hero.name}" class="detail-image" onerror="this.src='assets/img/placeholder.jpg'">
-                        <div class="detail-info">
-                            <h3>${hero.name}</h3>
-                            <p class="hero-role">${hero.role}</p>
-                        </div>
-                    </div>
-                    <div class="detail-content">
-                        <p>${hero.fullInfo}</p>
-                    </div>
-                    <button class="back-button">← Назад к списку героев</button>
-                </div>
-            </div>
-        `;
-        this.addDetailEventListeners();
-    }
+<div class="detail-header">
+    <img src="${hero.image}" alt="${hero.name}" class="detail-image" onerror="this.src='assets/img/placeholder.jpg'">
+    <div class="detail-info">
+        <h3>${hero.name}</h3>
+        <p class="hero-role">${hero.role}</p>
+    </div>
+</div>
+<div class="detail-content">
+    <p>${hero.fullInfo}</p>
+</div>
+
 
     addPopupEventListeners() {
         // Закрытие popup
@@ -130,4 +125,5 @@ class PopupManager {
         }
         return 1;
     }
+
 }
