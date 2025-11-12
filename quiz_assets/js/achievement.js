@@ -12,105 +12,105 @@ if (typeof window.AchievementSystem === 'undefined') {
                     id: 'quiz1', 
                     name: 'Первая викторина', 
                     description: 'Пройдите первую викторину',
-                    image: 'quiz_assets/img/1quiz.png', 
+                    image: 'https://nalojka.github.io/assets/img/minecraft_icons/1.png', 
                     earned: false 
                 },
                 'quiz3': { 
                     id: 'quiz3',
                     name: 'Третья викторина', 
                     description: 'Пройдите три викторины',
-                    image: 'quiz_assets/img/3quiz.png', 
+                    image: 'https://nalojka.github.io/assets/img/minecraft_icons/2.png', 
                     earned: false 
                 },
                 'quiz5': { 
                     id: 'quiz5',
                     name: 'Пятая викторина', 
                     description: 'Пройдите пять викторин',
-                    image: 'quiz_assets/img/5quiz.png', 
+                    image: 'https://nalojka.github.io/assets/img/minecraft_icons/3.png', 
                     earned: false 
                 },
                 'dnr': { 
                     id: 'dnr',
                     name: 'Знаток ДНР', 
                     description: 'Пройдите викторину по Донецкой Народной Республике',
-                    image: 'quiz_assets/img/dnr.png', 
+                    image: 'https://nalojka.github.io/assets/img/minecraft_icons/4.png', 
                     earned: false 
                 },
                 'lnr': { 
                     id: 'lnr',
                     name: 'Знаток ЛНР', 
                     description: 'Пройдите викторину по Луганской Народной Республике',
-                    image: 'quiz_assets/img/lnr.png', 
+                    image: 'https://nalojka.github.io/assets/img/minecraft_icons/5.png', 
                     earned: false 
                 },
                 'zaporoj': { 
                     id: 'zaporoj',
                     name: 'Знаток Запорожья', 
                     description: 'Пройдите викторину по Запорожской области',
-                    image: 'quiz_assets/img/zaporoj.png', 
+                    image: 'https://nalojka.github.io/assets/img/minecraft_icons/6.png', 
                     earned: false 
                 },
                 'herson': { 
                     id: 'herson',
                     name: 'Знаток Херсона', 
                     description: 'Пройдите викторину по Херсонской области',
-                    image: 'quiz_assets/img/herson.png', 
+                    image: 'https://nalojka.github.io/assets/img/minecraft_icons/7.png', 
                     earned: false 
                 },
                 'krim': { 
                     id: 'krim',
                     name: 'Знаток Крыма', 
                     description: 'Пройдите викторину по Республике Крым',
-                    image: 'quiz_assets/img/krim.png', 
+                    image: 'https://nalojka.github.io/assets/img/minecraft_icons/8.png', 
                     earned: false 
                 },
                 '100score': { 
                     id: '100score',
                     name: 'Отличник', 
                     description: 'Наберите 100% правильных ответов',
-                    image: 'quiz_assets/img/100score.png', 
+                    image: 'https://nalojka.github.io/assets/img/minecraft_icons/9.png', 
                     earned: false 
                 },
                 '0score': { 
                     id: '0score',
                     name: 'Новичок', 
                     description: 'Пройдите викторину без правильных ответов',
-                    image: 'quiz_assets/img/0score.png', 
+                    image: 'https://nalojka.github.io/assets/img/minecraft_icons/10.png', 
                     earned: false 
                 },
                 '1place': { 
                     id: '1place',
                     name: 'Первое место', 
                     description: 'Займите первое место в таблице лидеров',
-                    image: 'quiz_assets/img/1place.png', 
+                    image: 'https://nalojka.github.io/assets/img/minecraft_icons/11.png', 
                     earned: false 
                 },
                 '2place': { 
                     id: '2place',
                     name: 'Второе место', 
                     description: 'Займите второе место в таблице лидеров',
-                    image: 'quiz_assets/img/2place.png', 
+                    image: 'https://nalojka.github.io/assets/img/minecraft_icons/12.png', 
                     earned: false 
                 },
                 '3place': { 
                     id: '3place',
                     name: 'Третье место', 
                     description: 'Займите третье место в таблице лидеров',
-                    image: 'quiz_assets/img/3place.png', 
+                    image: 'https://nalojka.github.io/assets/img/minecraft_icons/13.png', 
                     earned: false 
                 },
                 '1_3place': { 
                     id: '1_3place',
                     name: 'В тройке лучших', 
                     description: 'Попадите в топ-3 лидеров',
-                    image: 'quiz_assets/img/1_3place.png', 
+                    image: 'https://nalojka.github.io/assets/img/minecraft_icons/14.png', 
                     earned: false 
                 },
                 '30second': { 
                     id: '30second',
                     name: 'Скоростник', 
                     description: 'Пройдите викторину менее чем за 30 секунд',
-                    image: 'quiz_assets/img/30seconds.png', 
+                    image: 'https://nalojka.github.io/assets/img/minecraft_icons/15.png', 
                     earned: false 
                 }
             };
