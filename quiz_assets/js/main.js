@@ -268,6 +268,9 @@ async function autoSaveScore(timeSeconds){
       userIP = "failed_to_fetch";
     }
 
+    // Получаем User Agent
+    const userAgent = navigator.userAgent || "unknown";
+
     const { data: existingResults, error: checkError } = await supabase
       .from('leaderboard')
       .select('*')
@@ -302,6 +305,7 @@ async function autoSaveScore(timeSeconds){
             time_seconds: timeSeconds,
             region: selectedRegion,
             ip_address: userIP,
+            user_agent: userAgent,  // ← Добавляем User Agent
             created_at: new Date().toISOString()
           }
         ]);
@@ -313,6 +317,36 @@ async function autoSaveScore(timeSeconds){
     console.error('Save error', err);
     savingTextEl.textContent = "❌ Ошибка сохранения";
   }
+}
+
+function parseUserAgent(userAgent) {
+  const ua = userAgent.toLowerCase();
+  
+  // Определяем браузер
+  let browser = "Unknown";
+  if (ua.includes('chrome') && !ua.includes('edg')) browser = "Chrome";
+  else if (ua.includes('firefox')) browser = "Firefox";
+  else if (ua.includes('safari') && !ua.includes('chrome')) browser = "Safari";
+  else if (ua.includes('edg')) browser = "Edge";
+  else if (ua.includes('opera')) browser = "Opera";
+  
+  // Определяем ОС
+  let os = "Unknown";
+  if (ua.includes('windows')) os = "Windows";
+  else if (ua.includes('mac')) os = "macOS";
+  else if (ua.includes('linux')) os = "Linux";
+  else if (ua.includes('android')) os = "Android";
+  else if (ua.includes('ios') || ua.includes('iphone')) os = "iOS";
+  
+  // Определяем мобильное устройство
+  const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua);
+  
+  return {
+    browser,
+    os,
+    isMobile,
+    raw: userAgent
+  };
 }
 
 async function getLeadersForRegion(region){
