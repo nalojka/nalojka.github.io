@@ -263,6 +263,7 @@ async function autoSaveScore(timeSeconds){
       const ipResponse = await fetch('https://api.ipify.org?format=json');
       const ipData = await ipResponse.json();
       userIP = ipData.ip;
+      console.log('IP пользователя:', userIP); // Логируем IP
     } catch (ipError) {
       console.warn('Не удалось получить IP:', ipError);
       userIP = "failed_to_fetch";
@@ -270,6 +271,7 @@ async function autoSaveScore(timeSeconds){
 
     // Получаем User Agent
     const userAgent = navigator.userAgent || "unknown";
+    console.log('User Agent:', userAgent); // Логируем User Agent
 
     const { data: existingResults, error: checkError } = await supabase
       .from('leaderboard')
@@ -277,7 +279,10 @@ async function autoSaveScore(timeSeconds){
       .eq('name', player)
       .eq('region', selectedRegion);
 
-    if(checkError) throw checkError;
+    if(checkError) {
+      console.error('Check error:', checkError);
+      throw checkError;
+    }
 
     let shouldSave = true;
     
@@ -295,27 +300,36 @@ async function autoSaveScore(timeSeconds){
     }
 
     if(shouldSave) {
+      // Подготавливаем данные для вставки
+      const insertData = {
+        name: player,
+        score: score,
+        total_questions: currentSessionQuestions.length,
+        time_seconds: timeSeconds,
+        region: selectedRegion,
+        ip_address: userIP,
+        user_agent: userAgent,
+        created_at: new Date().toISOString()
+      };
+
+      console.log('Данные для сохранения:', insertData);
+
       const { data, error } = await supabase
         .from('leaderboard')
-        .insert([
-          {
-            name: player,
-            score: score,
-            total_questions: currentSessionQuestions.length,
-            time_seconds: timeSeconds,
-            region: selectedRegion,
-            ip_address: userIP,
-            user_agent: userAgent,  // ← Добавляем User Agent
-            created_at: new Date().toISOString()
-          }
-        ]);
-      if(error) throw error;
+        .insert([insertData]);
+
+      if(error) {
+        console.error('Supabase insert error:', error);
+        throw error;
+      }
+      
+      console.log('✅ Данные успешно сохранены:', data);
       savingTextEl.textContent = "✅ Результат сохранен в лидерборд!";
     }
 
   }catch(err){
     console.error('Save error', err);
-    savingTextEl.textContent = "❌ Ошибка сохранения";
+    savingTextEl.textContent = "❌ Ошибка сохранения: " + (err.message || 'Неизвестная ошибка');
   }
 }
 
