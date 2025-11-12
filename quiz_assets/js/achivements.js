@@ -1,8 +1,10 @@
 // quiz_assets/js/achievement.js
+console.log('🔧 AchievementSystem script loaded');
 
 // Проверяем, не объявлен ли класс уже
-if (typeof AchievementSystem === 'undefined') {
-    class AchievementSystem {
+if (typeof window.AchievementSystem === 'undefined') {
+    console.log('🔧 Creating AchievementSystem class');
+    window.AchievementSystem = class {
         constructor() {
             console.log('✅ AchievementSystem constructor called!');
             this.achievements = {
@@ -10,21 +12,21 @@ if (typeof AchievementSystem === 'undefined') {
                     id: 'quiz1', 
                     name: 'Первая викторина', 
                     description: 'Пройдите первую викторину',
-                    image: 'quiz_assets/img/quiz1.png', 
+                    image: 'quiz_assets/img/1quiz.png', 
                     earned: false 
                 },
                 'quiz3': { 
                     id: 'quiz3',
                     name: 'Третья викторина', 
                     description: 'Пройдите три викторины',
-                    image: 'quiz_assets/img/quiz3.png', 
+                    image: 'quiz_assets/img/3quiz.png', 
                     earned: false 
                 },
                 'quiz5': { 
                     id: 'quiz5',
                     name: 'Пятая викторина', 
                     description: 'Пройдите пять викторин',
-                    image: 'quiz_assets/img/quiz5.png', 
+                    image: 'quiz_assets/img/5quiz.png', 
                     earned: false 
                 },
                 'dnr': { 
@@ -101,7 +103,7 @@ if (typeof AchievementSystem === 'undefined') {
                     id: '30second',
                     name: 'Скоростник', 
                     description: 'Пройдите викторину менее чем за 30 секунд',
-                    image: 'quiz_assets/img/30second.png', 
+                    image: 'quiz_assets/img/30seconds.png', 
                     earned: false 
                 }
             };
@@ -386,4 +388,6 @@ if (typeof AchievementSystem === 'undefined') {
             return this.achievements[achievementId]?.earned || false;
         }
     }
+} else {
+    console.log('ℹ️ AchievementSystem already exists');
 }
