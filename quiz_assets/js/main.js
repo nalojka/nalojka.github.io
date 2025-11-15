@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const SUPABASE_URL = 'https://xlrmxinwpwjjurltvoms.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhscm14aW53cHdqanVybHR2b21zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3ODY3NjYsImV4cCI6MjA3ODM2Mjc2Nn0.1dUPUXBfmN3cMTkAQVHWgXdhU74hJ6U96v1M_OSoZyI';
+    const SUPABASE_URL = 'supabase_url';
+    const SUPABASE_ANON_KEY = 'supabase_key';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let achievementSystem;
